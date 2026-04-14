@@ -1,0 +1,2832 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FINANCE DASHBOARD DEMO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg-base:#0a0a0a;--bg-card:#141414;--bg-elevated:#1e1e1e;--bg-input:#1a1a1a;
+--bg-hover:rgba(245,242,239,0.04);--bg-active:rgba(245,242,239,0.07);
+--text-primary:#f0ece8;--text-secondary:#a09890;--text-muted:#666;--text-dim:#444;
+--accent-warm:rgba(245,242,239,0.08);--accent-warm-solid:#f5f2ef;
+--border-subtle:rgba(255,255,255,0.06);--border-medium:rgba(255,255,255,0.1);
+--shadow-card:rgba(255,255,255,0.03) 0px 0px 0px 1px, rgba(0,0,0,0.5) 0px 4px 12px;
+--shadow-elevated:rgba(255,255,255,0.05) 0px 0px 0px 1px, rgba(0,0,0,0.6) 0px 8px 24px;
+--shadow-inset:rgba(255,255,255,0.04) 0px 0px 0px 0.5px inset;
+--radius-card:16px;--radius-pill:9999px;--radius-sm:8px;--radius-xs:6px;
+--green:#4ade80;--green-dim:rgba(74,222,128,0.15);
+--red:#f87171;--red-dim:rgba(248,113,113,0.15);
+--blue:#60a5fa;--blue-dim:rgba(96,165,250,0.15);
+--amber:#fbbf24;--amber-dim:rgba(251,191,36,0.15);
+--purple:#a78bfa;--purple-dim:rgba(167,139,250,0.15);
+--cat-colors:#60a5fa,#f87171,#4ade80,#fbbf24,#a78bfa,#f472b6,#34d399,#fb923c,#818cf8,#22d3ee,#e879f9,#facc15,#38bdf8,#fb7185,#a3e635,#c084fc,#f97316,#2dd4bf,#e5e5e5,#94a3b8,#d946ef,#84cc16,#f43f5e,#06b6d4,#8b5cf6,#10b981;
+}
+[data-theme="light"]{
+--bg-base:#f5f5f5;--bg-card:#ffffff;--bg-elevated:#ffffff;--bg-input:#f0f0f0;
+--bg-hover:rgba(0,0,0,0.03);--bg-active:rgba(0,0,0,0.06);
+--text-primary:#111;--text-secondary:#4e4e4e;--text-muted:#777169;--text-dim:#aaa;
+--accent-warm:rgba(245,242,239,0.8);--accent-warm-solid:#f5f2ef;
+--border-subtle:rgba(0,0,0,0.06);--border-medium:rgba(0,0,0,0.1);
+--shadow-card:rgba(0,0,0,0.06) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 4px 12px;
+--shadow-elevated:rgba(0,0,0,0.08) 0px 0px 0px 1px, rgba(0,0,0,0.06) 0px 8px 24px;
+--shadow-inset:rgba(0,0,0,0.075) 0px 0px 0px 0.5px inset;
+}
+html{font-family:'Inter',sans-serif;font-size:15px;letter-spacing:0.15px;-webkit-font-smoothing:antialiased}
+body{background:var(--bg-base);color:var(--text-primary);min-height:100vh;line-height:1.5;transition:background .3s,color .3s}
+a{color:var(--blue);text-decoration:none}
+input,select,button{font-family:inherit;font-size:inherit;letter-spacing:inherit}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:var(--bg-base);border-bottom:1px solid var(--border-subtle);
+  padding:0 24px;display:flex;align-items:center;height:56px;gap:16px;backdrop-filter:blur(12px);
+  background:rgba(10,10,10,0.85)}
+[data-theme="light"] .header{background:rgba(245,245,245,0.85)}
+.header .logo{font-weight:600;font-size:17px;letter-spacing:-0.3px;white-space:nowrap}
+.header .logo span{color:var(--text-muted);font-weight:300}
+.header-filters{display:flex;gap:8px;align-items:center;margin-left:auto}
+.header-filters select,.header-filters input{background:var(--bg-card);color:var(--text-primary);
+  border:1px solid var(--border-subtle);border-radius:var(--radius-pill);padding:6px 14px;font-size:13px;
+  outline:none;transition:border-color .2s;cursor:pointer;appearance:auto}
+.header-filters select:hover,.header-filters input:hover{border-color:var(--border-medium)}
+.header-filters select:focus,.header-filters input:focus{border-color:var(--blue)}
+
+.theme-toggle{background:var(--bg-card);border:1px solid var(--border-subtle);color:var(--text-secondary);
+  border-radius:var(--radius-pill);padding:6px 12px;cursor:pointer;font-size:13px;transition:all .2s;white-space:nowrap}
+.theme-toggle:hover{background:var(--bg-hover);border-color:var(--border-medium)}
+
+/* TABS */
+.tab-bar{display:flex;gap:4px;padding:8px 24px;background:var(--bg-base);border-bottom:1px solid var(--border-subtle);overflow-x:auto}
+.tab-btn{background:transparent;border:none;color:var(--text-muted);padding:8px 16px;border-radius:var(--radius-pill);
+  cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{background:var(--bg-hover);color:var(--text-secondary)}
+.tab-btn.active{background:var(--accent-warm);color:var(--text-primary);box-shadow:var(--shadow-inset)}
+
+/* MAIN */
+.main{max-width:1440px;margin:0 auto;padding:20px 24px 40px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* GRID */
+.grid{display:grid;gap:16px}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+.grid-5{grid-template-columns:repeat(5,1fr)}
+.grid-2-1{grid-template-columns:2fr 1fr}
+.grid-1-1{grid-template-columns:1fr 1fr}
+@media(max-width:1100px){.grid-4,.grid-5{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){.grid-2,.grid-3,.grid-4,.grid-5,.grid-2-1,.grid-1-1{grid-template-columns:1fr}}
+
+/* CARD */
+.card{background:var(--bg-card);border-radius:var(--radius-card);box-shadow:var(--shadow-card);
+  padding:20px;transition:box-shadow .3s,transform .15s}
+.card:hover{box-shadow:var(--shadow-elevated)}
+.card-title{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:8px}
+.card-value{font-size:28px;font-weight:300;letter-spacing:-0.5px;line-height:1.1}
+.card-sub{font-size:12px;color:var(--text-muted);margin-top:6px;display:flex;align-items:center;gap:4px}
+.card-sub .up{color:var(--green)}
+.card-sub .down{color:var(--red)}
+
+/* SECTION HEADER */
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;margin-top:24px}
+.section-hdr:first-child{margin-top:0}
+.section-hdr h2{font-size:16px;font-weight:500;letter-spacing:-0.2px}
+.section-hdr .pill{background:var(--bg-card);border:1px solid var(--border-subtle);color:var(--text-secondary);
+  border-radius:var(--radius-pill);padding:5px 12px;font-size:12px;cursor:pointer;transition:all .2s}
+.section-hdr .pill:hover{background:var(--bg-hover)}
+
+/* CHART CONTAINER */
+.chart-wrap{position:relative;width:100%;min-height:250px}
+.chart-wrap canvas{width:100%!important}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border-subtle)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--bg-elevated)}
+th{text-align:left;padding:10px 14px;font-weight:500;color:var(--text-muted);font-size:11px;
+  text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border-subtle);cursor:pointer;white-space:nowrap;user-select:none}
+th:hover{color:var(--text-secondary)}
+td{padding:10px 14px;border-bottom:1px solid var(--border-subtle);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg-hover)}
+.sort-arrow{margin-left:4px;font-size:10px;opacity:0.5}
+th.sorted .sort-arrow{opacity:1;color:var(--blue)}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.filter-bar input,.filter-bar select{background:var(--bg-card);color:var(--text-primary);
+  border:1px solid var(--border-subtle);border-radius:var(--radius-pill);padding:7px 14px;font-size:13px;outline:none;transition:border-color .2s}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--blue)}
+.filter-bar input{min-width:200px}
+
+/* PILLS / BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--radius-pill);font-size:11px;font-weight:500}
+.badge-green{background:var(--green-dim);color:var(--green)}
+.badge-red{background:var(--red-dim);color:var(--red)}
+.badge-blue{background:var(--blue-dim);color:var(--blue)}
+.badge-amber{background:var(--amber-dim);color:var(--amber)}
+.badge-purple{background:var(--purple-dim);color:var(--purple)}
+
+/* EXPORT BTN */
+.btn{background:var(--bg-card);border:1px solid var(--border-subtle);color:var(--text-primary);
+  border-radius:var(--radius-pill);padding:7px 18px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn:hover{background:var(--bg-hover);border-color:var(--border-medium)}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#000}
+.btn-primary:hover{opacity:0.9}
+.btn-sm{padding:5px 12px;font-size:12px}
+.merch-preset{background:var(--bg-elevated);border-color:var(--border-subtle);font-size:11px;padding:4px 10px;letter-spacing:0.3px}
+.merch-preset.active{background:var(--blue);border-color:var(--blue);color:#000;font-weight:600}
+.merch-preset:hover:not(.active){background:var(--bg-hover);border-color:var(--border-medium)}
+.filter-input{background:var(--bg-input);border:1px solid var(--border-subtle);color:var(--text-primary);
+  border-radius:var(--radius-xs);padding:5px 10px;font-size:12px;outline:none}
+.filter-input:focus{border-color:var(--blue)}
+
+/* CATEGORY SELECT */
+.cat-select{background:transparent;border:1px solid transparent;color:var(--text-secondary);font-size:12px;
+  padding:2px 4px;border-radius:var(--radius-xs);cursor:pointer;transition:all .2s;max-width:160px}
+.cat-select:hover{border-color:var(--border-medium);background:var(--bg-elevated)}
+.cat-select:focus{border-color:var(--blue);outline:none}
+.cat-select.overridden{color:var(--amber);border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.06)}
+.cat-select option{background:var(--bg-card);color:var(--text-primary)}
+tr.active-row{background:var(--bg-active) !important}
+tr.active-row td:first-child{border-left:2px solid var(--blue)}
+.bulk-bar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--blue-dim);
+  border:1px solid rgba(96,165,250,0.3);border-radius:var(--radius-sm);margin-bottom:8px;font-size:12px}
+.bulk-bar select{background:var(--bg-input);border:1px solid var(--border-medium);color:var(--text-primary);
+  border-radius:var(--radius-xs);padding:4px 8px;font-size:12px}
+.bulk-bar button{padding:4px 12px;font-size:11px}
+.bulk-check{width:15px;height:15px;accent-color:var(--blue);cursor:pointer}
+
+/* ALERTS */
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:var(--radius-sm);
+  background:var(--bg-elevated);margin-bottom:8px;border-left:3px solid var(--amber);font-size:13px}
+.alert-item.alert-red{border-left-color:var(--red)}
+.alert-item.alert-blue{border-left-color:var(--blue)}
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* EXPANDABLE ROW */
+.expand-row{display:none}
+.expand-row.open{display:table-row}
+.expand-row td{padding:0;background:var(--bg-elevated)}
+.expand-content{padding:12px 14px}
+.expand-content table{font-size:12px}
+.expand-content th{font-size:10px}
+
+/* BUDGET INPUT */
+.budget-input{background:transparent;border:1px solid transparent;color:var(--text-primary);
+  width:80px;padding:4px 8px;border-radius:var(--radius-xs);text-align:right;font-size:13px}
+.budget-input:hover{border-color:var(--border-subtle)}
+.budget-input:focus{border-color:var(--blue);outline:none;background:var(--bg-input)}
+
+/* PROGRESS BAR */
+.progress-bar{height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* INSIGHT CARD */
+.insight-card{padding:16px;border-radius:var(--radius-sm);background:var(--bg-elevated);border:1px solid var(--border-subtle);margin-bottom:12px}
+.insight-card h4{font-size:13px;font-weight:500;margin-bottom:6px}
+.insight-card p{font-size:12px;color:var(--text-secondary);line-height:1.5}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg-card);border-radius:var(--radius-card);box-shadow:var(--shadow-elevated);
+  max-width:700px;width:90%;max-height:80vh;overflow-y:auto;padding:24px}
+.modal-close{float:right;background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;padding:4px 8px}
+.modal-close:hover{color:var(--text-primary)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.2)}
+[data-theme="light"] ::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15)}
+
+/* SOURCE BADGES */
+.src-fcb{background:rgba(74,222,128,0.12);color:#4ade80}
+.src-chase{background:rgba(96,165,250,0.12);color:#60a5fa}
+.src-coinbase{background:rgba(251,191,36,0.12);color:#fbbf24}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text-muted)}
+
+/* TOOLTIP override for chart.js */
+.chartjs-tooltip{background:var(--bg-elevated)!important;border:1px solid var(--border-subtle)!important;
+  border-radius:8px!important;padding:8px 12px!important}
+
+/* MERCHANT DETAIL PANEL */
+.detail-panel{background:var(--bg-elevated);border-radius:var(--radius-sm);padding:16px;margin-top:12px;
+  border:1px solid var(--border-subtle);display:none}
+.detail-panel.open{display:block}
+
+/* TOGGLE SWITCH */
+.toggle-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary)}
+.toggle{width:36px;height:20px;background:var(--bg-elevated);border-radius:10px;position:relative;cursor:pointer;
+  border:1px solid var(--border-subtle);transition:background .2s}
+.toggle.on{background:var(--blue)}
+.toggle::after{content:'';position:absolute;width:14px;height:14px;background:white;border-radius:50%;
+  top:2px;left:2px;transition:transform .2s}
+.toggle.on::after{transform:translateX(16px)}
+
+/* CATEGORY COLOR DOT */
+.cat-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;flex-shrink:0}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.tab-content.active{animation:fadeIn .25s ease}
+</style>
+</head>
+<body>
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">FINANCE DASHBOARD DEMO</div>
+  <div class="header-filters" style="flex-wrap:wrap">
+    <div style="display:flex;gap:3px;flex-wrap:wrap" id="globalDatePresets">
+      <button class="btn merch-preset" data-gpreset="month" onclick="setGlobalPreset('month',this)">This Month</button>
+      <button class="btn merch-preset" data-gpreset="lastMonth" onclick="setGlobalPreset('lastMonth',this)">Last Month</button>
+      <button class="btn merch-preset" data-gpreset="3mo" onclick="setGlobalPreset('3mo',this)">3 Mo</button>
+      <button class="btn merch-preset" data-gpreset="6mo" onclick="setGlobalPreset('6mo',this)">6 Mo</button>
+      <button class="btn merch-preset" data-gpreset="ytd" onclick="setGlobalPreset('ytd',this)">YTD</button>
+      <button class="btn merch-preset" data-gpreset="year" onclick="setGlobalPreset('year',this)">12 Mo</button>
+      <button class="btn merch-preset active" data-gpreset="all" onclick="setGlobalPreset('all',this)">All Time</button>
+      <button class="btn merch-preset" data-gpreset="custom" onclick="setGlobalPreset('custom',this)">Custom</button>
+    </div>
+    <div id="globalCustomRange" style="display:none;gap:4px;align-items:center">
+      <input type="date" id="globalDateFrom" class="filter-input">
+      <span style="color:var(--text-muted);font-size:11px">to</span>
+      <input type="date" id="globalDateTo" class="filter-input">
+      <button class="btn" style="padding:4px 10px;font-size:11px" onclick="refreshAll()">Apply</button>
+    </div>
+    <select id="sourceFilter" title="Source" style="margin-left:4px">
+      <option value="all">All Sources</option>
+      <option value="0">FCB</option>
+      <option value="1">Chase</option>
+      <option value="2">Coinbase</option>
+    </select>
+    <button class="theme-toggle" onclick="toggleTheme()">&#9788; Light</button>
+    <button class="theme-toggle" onclick="openCategoryManager()" title="Manage Categories" style="font-size:13px">&#9881; Categories</button>
+  </div>
+</header>
+
+<!-- TABS -->
+<nav class="tab-bar" id="tabBar">
+  <button class="tab-btn active" data-tab="overview">Overview</button>
+  <button class="tab-btn" data-tab="categories">Categories</button>
+  <button class="tab-btn" data-tab="merchants">Merchants</button>
+  <button class="tab-btn" data-tab="transactions">Transactions</button>
+  <button class="tab-btn" data-tab="cashflow">Cash Flow</button>
+  <button class="tab-btn" data-tab="insights">Insights</button>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- OVERVIEW -->
+  <div class="tab-content active" id="tab-overview">
+    <div class="grid grid-3" id="kpiCards"></div>
+    <div class="grid grid-2-1" style="margin-top:16px">
+      <div class="card">
+        <div class="card-title">Monthly Spending Trend</div>
+        <div class="chart-wrap"><canvas id="chartMonthlyTrend"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Category Breakdown</div>
+        <div class="chart-wrap"><canvas id="chartCategoryDonut"></canvas></div>
+      </div>
+    </div>
+    <div class="grid grid-2" style="margin-top:16px">
+      <div class="card">
+        <div class="card-title">Top Merchants This Month</div>
+        <div id="topMerchants"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Alerts &amp; Notifications</div>
+        <div id="alertsPanel"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <div class="tab-content" id="tab-categories">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Category Heatmap <span style="font-size:11px;color:var(--text-muted);font-weight:400">— spend intensity by month</span></div>
+      <div id="catHeatmapWrap" style="overflow-x:auto"></div>
+    </div>
+    <div style="display:flex;gap:16px;align-items:flex-start" id="catSplitView">
+      <div class="card" style="flex:1;min-width:0">
+        <div class="card-title">Category Breakdown</div>
+        <div class="tbl-wrap" id="catTableWrap" style="max-height:600px;overflow-y:auto"></div>
+      </div>
+      <div class="card" id="catDetailPanel" style="flex:1;min-width:0;display:none;max-height:680px;overflow-y:auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 id="catDetailName" style="font-size:15px;font-weight:600"></h3>
+          <button class="btn" onclick="closeCatDetail()" style="padding:4px 12px;font-size:12px">Close</button>
+        </div>
+        <div id="catDetailContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MERCHANTS -->
+  <div class="tab-content" id="tab-merchants">
+    <div class="filter-bar" style="flex-wrap:wrap;gap:8px">
+      <input type="text" id="merchSearch" placeholder="Search merchants...">
+      <select id="merchSortBy">
+        <option value="amount">Sort by Amount</option>
+        <option value="count">Sort by Frequency</option>
+        <option value="name">Sort by Name</option>
+      </select>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Top Merchants by Amount</div>
+      <div class="chart-wrap" style="height:350px"><canvas id="chartMerchAmount"></canvas></div>
+    </div>
+    <div style="display:flex;gap:16px;align-items:flex-start" id="merchSplitView">
+      <div class="card" style="flex:1;min-width:0;transition:flex .3s" id="merchListCard">
+        <div class="card-title">All Merchants</div>
+        <div class="tbl-wrap" id="merchTableWrap" style="max-height:550px;overflow-y:auto"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px;color:var(--text-muted)">
+          <span id="merchPageCount"></span>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="btn" id="merchPrev" onclick="merchPage(-1)" style="padding:4px 12px;font-size:11px">Prev</button>
+            <span id="merchPageInfo" style="padding:4px 8px"></span>
+            <button class="btn" id="merchNext" onclick="merchPage(1)" style="padding:4px 12px;font-size:11px">Next</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="merchDetailPanel" style="flex:1;min-width:0;display:none;max-height:680px;overflow-y:auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 id="merchDetailName" style="font-size:15px;font-weight:600"></h3>
+          <button class="btn" onclick="closeMerchDetail()" style="padding:4px 12px;font-size:12px">Close</button>
+        </div>
+        <div id="merchDetailKpis" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px"></div>
+        <div id="merchDetailContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS -->
+  <div class="tab-content" id="tab-transactions">
+    <div class="filter-bar">
+      <input type="text" id="txnSearch" placeholder="Search transactions...">
+      <input type="date" id="txnDateFrom" title="From date">
+      <input type="date" id="txnDateTo" title="To date">
+      <select id="txnCatFilter"><option value="all">All Categories</option></select>
+      <select id="txnSrcFilter"><option value="all">All Sources</option><option value="0">FCB</option><option value="1">Chase</option><option value="2">Coinbase</option></select>
+      <input type="number" id="txnAmtMin" placeholder="Min $" style="width:80px">
+      <input type="number" id="txnAmtMax" placeholder="Max $" style="width:80px">
+      <button class="btn" onclick="applyTxnFilters()">Apply</button>
+      <button class="btn" onclick="exportCSV()">Export CSV</button>
+    </div>
+    <div class="card" id="txnSearchSummary" style="display:none;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div>
+          <span style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);font-weight:500">Search Results for </span>
+          <span id="txnSearchTerm" style="font-size:15px;font-weight:600;color:var(--blue)"></span>
+        </div>
+        <button class="btn" style="padding:4px 12px;font-size:11px" onclick="document.getElementById('txnSearch').value='';applyTxnFilters()">Clear Search</button>
+      </div>
+      <div class="grid grid-4" style="gap:12px;margin-bottom:16px">
+        <div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:12px;text-align:center">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin-bottom:4px">Matches</div>
+          <div id="txnSearchCount" style="font-size:22px;font-weight:600"></div>
+        </div>
+        <div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:12px;text-align:center">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin-bottom:4px">Total Spent</div>
+          <div id="txnSearchTotal" style="font-size:22px;font-weight:600"></div>
+        </div>
+        <div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:12px;text-align:center">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin-bottom:4px">Avg per Txn</div>
+          <div id="txnSearchAvg" style="font-size:22px;font-weight:600"></div>
+        </div>
+        <div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:12px;text-align:center">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin-bottom:4px">Months Active</div>
+          <div id="txnSearchMonths" style="font-size:22px;font-weight:600"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div style="flex:2;min-width:280px">
+          <div style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:8px">Spending by Month</div>
+          <div style="height:160px"><canvas id="chartTxnSearch"></canvas></div>
+        </div>
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:8px">By Source</div>
+          <div id="txnSearchBySrc"></div>
+          <div style="font-size:12px;font-weight:500;color:var(--text-secondary);margin:12px 0 8px">Top Merchants</div>
+          <div id="txnSearchByMerch"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="tbl-wrap" id="txnTableWrap"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:12px;color:var(--text-muted)">
+        <span id="txnCount"></span>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="txnPrev" onclick="txnPage(-1)" style="padding:4px 12px;font-size:12px">Prev</button>
+          <span id="txnPageInfo" style="padding:4px 8px"></span>
+          <button class="btn" id="txnNext" onclick="txnPage(1)" style="padding:4px 12px;font-size:12px">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASH FLOW -->
+  <div class="tab-content" id="tab-cashflow">
+    <div style="display:flex;gap:16px;margin-bottom:16px;align-items:center">
+      <div class="toggle-row"><span class="toggle" id="toggleTransfers" onclick="toggleCF(this,'transfers')"></span> Show Transfers</div>
+      <div class="toggle-row"><span class="toggle" id="toggleDebt" onclick="toggleCF(this,'debt')"></span> Show Debt Service</div>
+    </div>
+    <div class="grid grid-5" id="cfKpis"></div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">Income vs Spending</div>
+      <div class="chart-wrap"><canvas id="chartCashFlow"></canvas></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">Net Cash Flow Trend</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="chartNetCF"></canvas></div>
+    </div>
+    <details class="card" style="margin-top:16px;cursor:default">
+      <summary style="cursor:pointer;font-size:13px;font-weight:600;letter-spacing:0.3px;padding:4px 0">Transfer &amp; Payment Flows</summary>
+      <div class="tbl-wrap" id="transferTableWrap" style="margin-top:12px"></div>
+    </details>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="tab-content" id="tab-insights">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Trip & Event Analyzer</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input type="text" id="tripSearchInput" placeholder="Search a trip or event (e.g. Italy, Kansas City, Christmas)..."
+          style="flex:1;background:var(--bg-input);border:1px solid var(--border-subtle);color:var(--text-primary);
+          border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;outline:none"
+          onkeydown="if(event.key==='Enter')searchTrip()">
+        <button class="btn btn-primary" onclick="searchTrip()" style="padding:8px 16px;font-size:13px">Find Trip</button>
+      </div>
+      <div id="tripResults"></div>
+    </div>
+    <div class="grid grid-2" style="margin-top:16px">
+      <div class="card">
+        <div class="card-title">Subscription Tracker</div>
+        <div id="insightSubs"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Anomaly Detection</div>
+        <div id="insightAnomalies"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+const RAW={"cats":["Housing","Groceries","Dining/Food","Gas/Auto","Utilities","Insurance","Subscriptions","Coffee","Shopping/Retail","Amazon","Health/Medical","Entertainment","Travel","Clothing","Home Improvement","Investments","Pets","Personal Care","Food Delivery","Transportation","Gifts","Other"],"merch":["Rent Payment","ABC Property Mgmt","Whole Foods","Trader Joes","Costco","Aldi","Kroger","Target Grocery","Fresh Market","Sprouts","Chipotle","Olive Garden","Local Bistro","Thai Kitchen","Burger Joint","Sushi Place","Taco Bell","Pizza Hut","Panera Bread","Five Guys","Shake Shack","Chick-fil-A","Shell","BP","Chevron","QuikTrip","Phillips 66","Costco Gas","Jiffy Lube","Electric Co","Water Dept","Gas Utility","Internet Provider","City Services","State Farm","Progressive","Allstate","GEICO","Netflix","Spotify","Apple iCloud","Adobe Creative","YouTube Premium","Hulu","Disney+","NY Times","ChatGPT Plus","Gym Membership","Starbucks","Local Coffee Shop","Dunkin","Blue Bottle","Peets Coffee","Target","Walmart","TJ Maxx","Home Goods","Marshalls","Ross","Five Below","Dollar Tree","Amazon","CVS Pharmacy","Walgreens","Dr Smith Office","Dentist","Eye Doctor","Urgent Care","Movie Theater","Concert Tickets","Bowling Alley","Mini Golf","Escape Room","Arcade","Hilton Hotel","Airbnb","Southwest Airlines","Uber","Lyft","Hertz Rental","Old Navy","H&M","Nordstrom Rack","Goodwill","Nike Store","Lowes","Home Depot","Ace Hardware","IKEA","Fidelity Transfer","Robinhood","PetSmart","Vet Clinic","Chewy.com","Great Clips","Spa Day","Ulta Beauty","DoorDash","Uber Eats","Grubhub","Uber Ride","Lyft Ride","Metro Transit","Gift Shop","Etsy","Amazon Gift","Misc Purchase","ATM Withdrawal","Venmo Payment"],"srcs":["Main Bank","Visa Card","Amex Card"],"s":[["2025-01-01",72.94,3,1,2,"TRADER JOES PURCHASE"],["2025-01-01",14.66,50,7,0,"DUNKIN DEBIT"],["2025-01-01",14.15,48,7,1,"STARBUCKS PURCHASE"],["2025-01-03",30.57,18,2,2,"PANERA BREAD PURCHASE"],["2025-01-03",58.92,10,2,1,"CHIPOTLE PURCHASE"],["2025-01-03",74.72,13,2,1,"THAI KITCHEN PURCHASE"],["2025-01-03",56.89,19,2,2,"FIVE GUYS PURCHASE"],["2025-01-04",171.48,3,1,0,"TRADER JOES DEBIT"],["2025-01-04",37.25,11,2,1,"OLIVE GARDEN PURCHASE"],["2025-01-04",8.22,50,7,1,"DUNKIN PURCHASE"],["2025-01-04",180.95,67,10,1,"URGENT CARE PURCHASE"],["2025-01-06",35.36,15,2,2,"SUSHI PLACE PURCHASE"],["2025-01-06",43.77,44,6,1,"DISNEY+ PURCHASE"],["2025-01-06",37.74,98,18,0,"UBER EATS DEBIT"],["2025-01-08",21.44,28,3,1,"JIFFY LUBE PURCHASE"],["2025-01-08",207.08,33,4,2,"CITY SERVICES PURCHASE"],["2025-01-08",5.89,48,7,2,"STARBUCKS PURCHASE"],["2025-01-09",74.15,5,1,2,"ALDI PURCHASE"],["2025-01-09",216.08,2,1,0,"WHOLE FOODS DEBIT"],["2025-01-09",56.95,17,2,1,"PIZZA HUT PURCHASE"],["2025-01-09",80.12,21,2,2,"CHICK-FIL-A PURCHASE"],["2025-01-09",60.99,20,2,0,"SHAKE SHACK DEBIT"],["2025-01-09",60.95,46,6,0,"CHATGPT PLUS DEBIT"],["2025-01-09",68.2,61,9,0,"AMAZON DEBIT"],["2025-01-10",43.75,100,19,2,"UBER RIDE PURCHASE"],["2025-01-11",121.78,53,8,0,"TARGET DEBIT"],["2025-01-11",131.84,85,14,0,"LOWES DEBIT"],["2025-01-11",9.76,106,21,1,"MISC PURCHASE PURCHASE"],["2025-01-12",249.55,35,5,0,"PROGRESSIVE DEBIT"],["2025-01-12",9.47,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2025-01-13",22.98,24,3,2,"CHEVRON PURCHASE"],["2025-01-13",69.75,47,6,2,"GYM MEMBERSHIP PURCHASE"],["2025-01-13",64.22,97,18,1,"DOORDASH PURCHASE"],["2025-01-14",105.02,71,11,0,"MINI GOLF DEBIT"],["2025-01-15",57.1,54,8,0,"WALMART DEBIT"],["2025-01-16",59.81,25,3,2,"QUIKTRIP PURCHASE"],["2025-01-17",95.45,37,5,0,"GEICO DEBIT"],["2025-01-17",13.45,48,7,1,"STARBUCKS PURCHASE"],["2025-01-18",170.09,90,15,0,"ROBINHOOD DEBIT"],["2025-01-18",63.36,97,18,0,"DOORDASH DEBIT"],["2025-01-19",318.33,32,4,1,"INTERNET PROVIDER PURCHASE"],["2025-01-19",11.37,56,8,2,"HOME GOODS PURCHASE"],["2025-01-20",163.73,2,1,2,"WHOLE FOODS PURCHASE"],["2025-01-20",52.46,15,2,2,"SUSHI PLACE PURCHASE"],["2025-01-21",73.42,8,1,2,"FRESH MARKET PURCHASE"],["2025-01-21",72.54,61,9,0,"AMAZON DEBIT"],["2025-01-22",57.93,24,3,0,"CHEVRON DEBIT"],["2025-01-22",49.31,39,6,2,"SPOTIFY PURCHASE"],["2025-01-22",93.24,58,8,2,"ROSS PURCHASE"],["2025-01-22",24.47,102,19,0,"METRO TRANSIT DEBIT"],["2025-01-23",105.17,8,1,0,"FRESH MARKET DEBIT"],["2025-01-23",145.46,56,8,1,"HOME GOODS PURCHASE"],["2025-01-24",49.29,17,2,1,"PIZZA HUT PURCHASE"],["2025-01-24",20.58,13,2,1,"THAI KITCHEN PURCHASE"],["2025-01-24",76.68,61,9,1,"AMAZON PURCHASE"],["2025-01-25",54.96,42,6,1,"YOUTUBE PREMIUM PURCHASE"],["2025-01-25",4.54,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2025-01-27",10.31,52,7,0,"PEETS COFFEE DEBIT"],["2025-01-27",14.74,48,7,2,"STARBUCKS PURCHASE"],["2025-01-28",54.49,15,2,0,"SUSHI PLACE DEBIT"],["2025-01-28",8.08,52,7,0,"PEETS COFFEE DEBIT"],["2025-01-28",25.9,61,9,0,"AMAZON DEBIT"],["2025-01-28",59.83,98,18,0,"UBER EATS DEBIT"],["2025-01-29",34.16,27,3,2,"COSTCO GAS PURCHASE"],["2025-01-30",10.19,48,7,1,"STARBUCKS PURCHASE"],["2025-01-30",43.8,94,17,2,"GREAT CLIPS PURCHASE"],["2025-01-30",27.12,98,18,2,"UBER EATS PURCHASE"],["2025-01-31",4.03,48,7,1,"STARBUCKS PURCHASE"],["2025-01-31",4.98,52,7,2,"PEETS COFFEE PURCHASE"],["2025-01-31",44.82,102,19,2,"METRO TRANSIT PURCHASE"],["2025-02-01",179.61,9,1,2,"SPROUTS PURCHASE"],["2025-02-01",63.33,29,4,2,"ELECTRIC CO PURCHASE"],["2025-02-02",35.01,22,3,0,"SHELL DEBIT"],["2025-02-02",10.16,48,7,1,"STARBUCKS PURCHASE"],["2025-02-03",39.06,27,3,1,"COSTCO GAS PURCHASE"],["2025-02-04",157.47,3,1,2,"TRADER JOES PURCHASE"],["2025-02-04",13.47,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-02-04",13.79,51,7,0,"BLUE BOTTLE DEBIT"],["2025-02-05",136.16,6,1,0,"KROGER DEBIT"],["2025-02-05",16.89,14,2,0,"BURGER JOINT DEBIT"],["2025-02-05",51.17,33,4,1,"CITY SERVICES PURCHASE"],["2025-02-05",18.63,61,9,1,"AMAZON PURCHASE"],["2025-02-06",14.55,52,7,1,"PEETS COFFEE PURCHASE"],["2025-02-06",88.72,61,9,2,"AMAZON PURCHASE"],["2025-02-08",90.52,7,1,1,"TARGET GROCERY PURCHASE"],["2025-02-08",12.8,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2025-02-08",10.92,48,7,1,"STARBUCKS PURCHASE"],["2025-02-09",262.31,4,1,0,"COSTCO DEBIT"],["2025-02-09",11.51,48,7,0,"STARBUCKS DEBIT"],["2025-02-09",84.79,106,21,1,"MISC PURCHASE PURCHASE"],["2025-02-11",13.37,50,7,1,"DUNKIN PURCHASE"],["2025-02-11",4.38,48,7,1,"STARBUCKS PURCHASE"],["2025-02-12",12.85,50,7,0,"DUNKIN DEBIT"],["2025-02-12",7.8,52,7,2,"PEETS COFFEE PURCHASE"],["2025-02-13",9.65,50,7,0,"DUNKIN DEBIT"],["2025-02-13",94.64,61,9,0,"AMAZON DEBIT"],["2025-02-13",53.96,71,11,0,"MINI GOLF DEBIT"],["2025-02-14",5.15,48,7,1,"STARBUCKS PURCHASE"],["2025-02-14",142.17,61,9,1,"AMAZON PURCHASE"],["2025-02-14",22.84,102,19,0,"METRO TRANSIT DEBIT"],["2025-02-15",55.2,99,18,2,"GRUBHUB PURCHASE"],["2025-02-16",77.71,14,2,0,"BURGER JOINT DEBIT"],["2025-02-17",11.24,52,7,2,"PEETS COFFEE PURCHASE"],["2025-02-17",11.0,50,7,1,"DUNKIN PURCHASE"],["2025-02-17",34.61,88,14,0,"IKEA DEBIT"],["2025-02-18",79.75,14,2,0,"BURGER JOINT DEBIT"],["2025-02-19",1778.92,0,0,0,"RENT PAYMENT DEBIT"],["2025-02-19",262.7,7,1,0,"TARGET GROCERY DEBIT"],["2025-02-19",153.06,35,5,0,"PROGRESSIVE DEBIT"],["2025-02-20",126.09,3,1,2,"TRADER JOES PURCHASE"],["2025-02-20",63.26,13,2,0,"THAI KITCHEN DEBIT"],["2025-02-20",14.11,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2025-02-20",139.35,61,9,2,"AMAZON PURCHASE"],["2025-02-21",27.27,24,3,1,"CHEVRON PURCHASE"],["2025-02-21",32.55,61,9,0,"AMAZON DEBIT"],["2025-02-22",78.25,7,1,1,"TARGET GROCERY PURCHASE"],["2025-02-22",73.67,20,2,2,"SHAKE SHACK PURCHASE"],["2025-02-22",48.35,41,6,1,"ADOBE CREATIVE PURCHASE"],["2025-02-22",10.48,50,7,2,"DUNKIN PURCHASE"],["2025-02-22",126.95,55,8,1,"TJ MAXX PURCHASE"],["2025-02-22",155.8,61,9,2,"AMAZON PURCHASE"],["2025-02-22",71.27,61,9,0,"AMAZON DEBIT"],["2025-02-24",19.97,18,2,1,"PANERA BREAD PURCHASE"],["2025-02-24",8.24,50,7,2,"DUNKIN PURCHASE"],["2025-02-24",7.37,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2025-02-25",62.47,46,6,1,"CHATGPT PLUS PURCHASE"],["2025-02-25",120.09,80,13,0,"OLD NAVY DEBIT"],["2025-02-26",63.43,38,6,0,"NETFLIX DEBIT"],["2025-02-26",12.63,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-02-26",6.2,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2025-02-27",177.09,6,1,2,"KROGER PURCHASE"],["2025-02-28",14.71,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2025-02-28",11.64,48,7,1,"STARBUCKS PURCHASE"],["2025-02-28",328.23,89,15,1,"FIDELITY TRANSFER PURCHASE"],["2025-03-01",56.15,33,4,1,"CITY SERVICES PURCHASE"],["2025-03-02",241.43,34,5,0,"STATE FARM DEBIT"],["2025-03-03",18.28,97,18,1,"DOORDASH PURCHASE"],["2025-03-04",14.53,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-03-06",31.71,22,3,1,"SHELL PURCHASE"],["2025-03-06",14.59,52,7,1,"PEETS COFFEE PURCHASE"],["2025-03-06",5.55,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-03-06",21.51,106,21,0,"MISC PURCHASE DEBIT"],["2025-03-07",124.94,3,1,1,"TRADER JOES PURCHASE"],["2025-03-07",34.71,25,3,1,"QUIKTRIP PURCHASE"],["2025-03-07",40.27,61,9,2,"AMAZON PURCHASE"],["2025-03-08",198.9,8,1,2,"FRESH MARKET PURCHASE"],["2025-03-08",41.56,14,2,0,"BURGER JOINT DEBIT"],["2025-03-08",212.81,34,5,2,"STATE FARM PURCHASE"],["2025-03-08",9.84,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-03-09",117.17,68,11,2,"MOVIE THEATER PURCHASE"],["2025-03-09",157.04,90,15,0,"ROBINHOOD DEBIT"],["2025-03-10",241.16,8,1,1,"FRESH MARKET PURCHASE"],["2025-03-10",86.84,56,8,0,"HOME GOODS DEBIT"],["2025-03-10",99.92,58,8,2,"ROSS PURCHASE"],["2025-03-10",73.01,61,9,2,"AMAZON PURCHASE"],["2025-03-10",87.88,68,11,0,"MOVIE THEATER DEBIT"],["2025-03-10",64.47,99,18,1,"GRUBHUB PURCHASE"],["2025-03-11",13.19,48,7,1,"STARBUCKS PURCHASE"],["2025-03-11",13.56,50,7,2,"DUNKIN PURCHASE"],["2025-03-11",212.34,61,9,1,"AMAZON PURCHASE"],["2025-03-12",199.36,59,8,2,"FIVE BELOW PURCHASE"],["2025-03-13",16.56,9,1,1,"SPROUTS PURCHASE"],["2025-03-13",59.5,15,2,1,"SUSHI PLACE PURCHASE"],["2025-03-13",9.94,41,6,2,"ADOBE CREATIVE PURCHASE"],["2025-03-13",3.34,50,7,1,"DUNKIN PURCHASE"],["2025-03-14",298.82,31,4,1,"GAS UTILITY PURCHASE"],["2025-03-14",6.22,52,7,0,"PEETS COFFEE DEBIT"],["2025-03-14",9.66,51,7,0,"BLUE BOTTLE DEBIT"],["2025-03-16",218.75,61,9,2,"AMAZON PURCHASE"],["2025-03-18",125.18,9,1,0,"SPROUTS DEBIT"],["2025-03-19",59.05,19,2,0,"FIVE GUYS DEBIT"],["2025-03-19",35.23,41,6,1,"ADOBE CREATIVE PURCHASE"],["2025-03-19",78.37,82,13,1,"NORDSTROM RACK PURCHASE"],["2025-03-19",15.19,99,18,2,"GRUBHUB PURCHASE"],["2025-03-20",10.08,18,2,1,"PANERA BREAD PURCHASE"],["2025-03-20",12.3,52,7,1,"PEETS COFFEE PURCHASE"],["2025-03-20",294.25,61,9,0,"AMAZON DEBIT"],["2025-03-20",53.91,99,18,0,"GRUBHUB DEBIT"],["2025-03-21",26.11,25,3,1,"QUIKTRIP PURCHASE"],["2025-03-21",28.85,83,13,0,"GOODWILL DEBIT"],["2025-03-21",18.48,96,17,0,"ULTA BEAUTY DEBIT"],["2025-03-21",30.14,106,21,0,"MISC PURCHASE DEBIT"],["2025-03-22",3.83,50,7,2,"DUNKIN PURCHASE"],["2025-03-23",10.75,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-03-24",72.72,12,2,0,"LOCAL BISTRO DEBIT"],["2025-03-25",15.91,43,6,2,"HULU PURCHASE"],["2025-03-25",32.16,99,18,1,"GRUBHUB PURCHASE"],["2025-03-26",77.13,19,2,1,"FIVE GUYS PURCHASE"],["2025-03-26",7.17,48,7,1,"STARBUCKS PURCHASE"],["2025-03-27",118.21,8,1,2,"FRESH MARKET PURCHASE"],["2025-03-27",185.63,34,5,0,"STATE FARM DEBIT"],["2025-03-27",4.22,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2025-03-27",6.35,48,7,1,"STARBUCKS PURCHASE"],["2025-03-28",12.67,52,7,2,"PEETS COFFEE PURCHASE"],["2025-03-29",11.49,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-03-29",9.67,50,7,2,"DUNKIN PURCHASE"],["2025-03-30",42.43,42,6,1,"YOUTUBE PREMIUM PURCHASE"],["2025-03-31",242.03,2,1,2,"WHOLE FOODS PURCHASE"],["2025-03-31",55.56,39,6,0,"SPOTIFY DEBIT"],["2025-03-31",12.03,42,6,0,"YOUTUBE PREMIUM DEBIT"],["2025-03-31",4.03,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2025-03-31",61.5,61,9,2,"AMAZON PURCHASE"],["2025-04-01",59.76,98,18,2,"UBER EATS PURCHASE"],["2025-04-03",58.97,2,1,1,"WHOLE FOODS PURCHASE"],["2025-04-03",11.07,19,2,1,"FIVE GUYS PURCHASE"],["2025-04-03",82.07,13,2,2,"THAI KITCHEN PURCHASE"],["2025-04-03",34.79,17,2,1,"PIZZA HUT PURCHASE"],["2025-04-04",9.53,61,9,0,"AMAZON DEBIT"],["2025-04-04",74.9,80,13,2,"OLD NAVY PURCHASE"],["2025-04-05",261.56,61,9,1,"AMAZON PURCHASE"],["2025-04-06",41.56,19,2,1,"FIVE GUYS PURCHASE"],["2025-04-08",255.73,4,1,0,"COSTCO DEBIT"],["2025-04-08",8.54,48,7,0,"STARBUCKS DEBIT"],["2025-04-09",49.58,18,2,1,"PANERA BREAD PURCHASE"],["2025-04-09",13.52,46,6,1,"CHATGPT PLUS PURCHASE"],["2025-04-10",11.46,52,7,1,"PEETS COFFEE PURCHASE"],["2025-04-10",13.05,50,7,2,"DUNKIN PURCHASE"],["2025-04-10",115.81,81,13,1,"H&M PURCHASE"],["2025-04-11",24.71,27,3,0,"COSTCO GAS DEBIT"],["2025-04-11",51.22,25,3,1,"QUIKTRIP PURCHASE"],["2025-04-11",140.21,31,4,1,"GAS UTILITY PURCHASE"],["2025-04-11",6.21,52,7,0,"PEETS COFFEE DEBIT"],["2025-04-11",196.7,61,9,1,"AMAZON PURCHASE"],["2025-04-11",246.68,89,15,1,"FIDELITY TRANSFER PURCHASE"],["2025-04-12",33.11,108,21,2,"VENMO PAYMENT PURCHASE"],["2025-04-14",27.07,61,9,1,"AMAZON PURCHASE"],["2025-04-14",59.32,96,17,0,"ULTA BEAUTY DEBIT"],["2025-04-15",12.89,45,6,2,"NY TIMES PURCHASE"],["2025-04-15",4.74,52,7,0,"PEETS COFFEE DEBIT"],["2025-04-16",58.17,18,2,1,"PANERA BREAD PURCHASE"],["2025-04-16",83.35,59,8,2,"FIVE BELOW PURCHASE"],["2025-04-16",19.59,99,18,1,"GRUBHUB PURCHASE"],["2025-04-16",27.53,106,21,2,"MISC PURCHASE PURCHASE"],["2025-04-17",45.47,43,6,1,"HULU PURCHASE"],["2025-04-18",9.63,48,7,0,"STARBUCKS DEBIT"],["2025-04-18",7.14,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-04-18",7.95,100,19,1,"UBER RIDE PURCHASE"],["2025-04-19",127.66,5,1,2,"ALDI PURCHASE"],["2025-04-19",84.97,10,2,2,"CHIPOTLE PURCHASE"],["2025-04-19",30.56,101,19,1,"LYFT RIDE PURCHASE"],["2025-04-20",131.38,6,1,1,"KROGER PURCHASE"],["2025-04-20",11.52,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2025-04-21",54.4,45,6,0,"NY TIMES DEBIT"],["2025-04-21",8.98,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2025-04-21",36.36,98,18,2,"UBER EATS PURCHASE"],["2025-04-22",259.84,5,1,2,"ALDI PURCHASE"],["2025-04-22",13.38,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-04-23",23.27,101,19,1,"LYFT RIDE PURCHASE"],["2025-04-24",54.49,15,2,0,"SUSHI PLACE DEBIT"],["2025-04-25",51.38,33,4,0,"CITY SERVICES DEBIT"],["2025-04-25",7.53,52,7,1,"PEETS COFFEE PURCHASE"],["2025-04-25",18.29,59,8,2,"FIVE BELOW PURCHASE"],["2025-04-26",104.11,55,8,0,"TJ MAXX DEBIT"],["2025-04-27",52.37,14,2,0,"BURGER JOINT DEBIT"],["2025-04-27",14.76,51,7,0,"BLUE BOTTLE DEBIT"],["2025-04-28",191.8,34,5,2,"STATE FARM PURCHASE"],["2025-04-28",6.31,48,7,1,"STARBUCKS PURCHASE"],["2025-04-28",14.77,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2025-04-28",286.47,61,9,2,"AMAZON PURCHASE"],["2025-04-28",13.95,72,11,0,"ESCAPE ROOM DEBIT"],["2025-04-28",44.84,98,18,0,"UBER EATS DEBIT"],["2025-04-30",9.1,52,7,0,"PEETS COFFEE DEBIT"],["2025-05-01",49.32,14,2,1,"BURGER JOINT PURCHASE"],["2025-05-01",56.14,38,6,0,"NETFLIX DEBIT"],["2025-05-01",13.3,50,7,0,"DUNKIN DEBIT"],["2025-05-01",87.64,106,21,2,"MISC PURCHASE PURCHASE"],["2025-05-02",116.94,36,5,1,"ALLSTATE PURCHASE"],["2025-05-02",13.17,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-05-02",435.01,90,15,1,"ROBINHOOD PURCHASE"],["2025-05-03",46.71,41,6,2,"ADOBE CREATIVE PURCHASE"],["2025-05-03",28.04,83,13,2,"GOODWILL PURCHASE"],["2025-05-04",26.0,20,2,0,"SHAKE SHACK DEBIT"],["2025-05-04",22.04,23,3,0,"BP DEBIT"],["2025-05-04",184.66,37,5,1,"GEICO PURCHASE"],["2025-05-04",40.39,43,6,2,"HULU PURCHASE"],["2025-05-04",4.58,48,7,1,"STARBUCKS PURCHASE"],["2025-05-05",78.04,11,2,1,"OLIVE GARDEN PURCHASE"],["2025-05-05",18.34,47,6,2,"GYM MEMBERSHIP PURCHASE"],["2025-05-05",6.01,52,7,0,"PEETS COFFEE DEBIT"],["2025-05-06",3.63,50,7,2,"DUNKIN PURCHASE"],["2025-05-07",19.04,47,6,0,"GYM MEMBERSHIP DEBIT"],["2025-05-07",46.81,97,18,0,"DOORDASH DEBIT"],["2025-05-08",179.54,5,1,2,"ALDI PURCHASE"],["2025-05-08",12.87,20,2,1,"SHAKE SHACK PURCHASE"],["2025-05-08",38.81,101,19,2,"LYFT RIDE PURCHASE"],["2025-05-09",82.49,17,2,1,"PIZZA HUT PURCHASE"],["2025-05-10",25.23,25,3,0,"QUIKTRIP DEBIT"],["2025-05-10",17.49,98,18,2,"UBER EATS PURCHASE"],["2025-05-11",12.46,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2025-05-11",22.48,55,8,1,"TJ MAXX PURCHASE"],["2025-05-12",65.67,20,2,1,"SHAKE SHACK PURCHASE"],["2025-05-12",30.88,38,6,0,"NETFLIX DEBIT"],["2025-05-12",52.42,97,18,2,"DOORDASH PURCHASE"],["2025-05-14",4.36,52,7,0,"PEETS COFFEE DEBIT"],["2025-05-14",238.96,61,9,0,"AMAZON DEBIT"],["2025-05-14",249.09,61,9,1,"AMAZON PURCHASE"],["2025-05-14",83.16,70,11,1,"BOWLING ALLEY PURCHASE"],["2025-05-16",12.34,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-05-17",78.34,18,2,0,"PANERA BREAD DEBIT"],["2025-05-17",8.5,50,7,0,"DUNKIN DEBIT"],["2025-05-17",138.85,61,9,2,"AMAZON PURCHASE"],["2025-05-19",71.33,16,2,1,"TACO BELL PURCHASE"],["2025-05-19",8.42,48,7,0,"STARBUCKS DEBIT"],["2025-05-20",33.26,18,2,2,"PANERA BREAD PURCHASE"],["2025-05-20",82.37,58,8,2,"ROSS PURCHASE"],["2025-05-20",30.71,102,19,0,"METRO TRANSIT DEBIT"],["2025-05-20",38.18,102,19,1,"METRO TRANSIT PURCHASE"],["2025-05-21",96.87,2,1,1,"WHOLE FOODS PURCHASE"],["2025-05-23",169.93,33,4,2,"CITY SERVICES PURCHASE"],["2025-05-24",21.52,16,2,0,"TACO BELL DEBIT"],["2025-05-24",69.93,15,2,1,"SUSHI PLACE PURCHASE"],["2025-05-24",230.52,35,5,2,"PROGRESSIVE PURCHASE"],["2025-05-25",1807.06,0,0,0,"RENT PAYMENT DEBIT"],["2025-05-25",181.49,4,1,2,"COSTCO PURCHASE"],["2025-05-25",71.43,95,17,2,"SPA DAY PURCHASE"],["2025-05-25",92.55,107,21,1,"ATM WITHDRAWAL PURCHASE"],["2025-05-26",75.49,18,2,1,"PANERA BREAD PURCHASE"],["2025-05-26",10.07,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2025-05-28",63.76,20,2,1,"SHAKE SHACK PURCHASE"],["2025-05-28",131.87,61,9,0,"AMAZON DEBIT"],["2025-05-28",30.56,97,18,2,"DOORDASH PURCHASE"],["2025-05-29",26.1,26,3,1,"PHILLIPS 66 PURCHASE"],["2025-05-30",33.6,27,3,1,"COSTCO GAS PURCHASE"],["2025-05-30",23.96,60,8,0,"DOLLAR TREE DEBIT"],["2025-05-31",18.84,11,2,0,"OLIVE GARDEN DEBIT"],["2025-05-31",36.16,18,2,1,"PANERA BREAD PURCHASE"],["2025-05-31",66.69,39,6,1,"SPOTIFY PURCHASE"],["2025-05-31",3.52,52,7,2,"PEETS COFFEE PURCHASE"],["2025-05-31",85.55,69,11,1,"CONCERT TICKETS PURCHASE"],["2025-06-02",119.74,5,1,2,"ALDI PURCHASE"],["2025-06-02",9.44,16,2,0,"TACO BELL DEBIT"],["2025-06-02",59.06,43,6,0,"HULU DEBIT"],["2025-06-03",75.03,16,2,2,"TACO BELL PURCHASE"],["2025-06-03",48.5,26,3,2,"PHILLIPS 66 PURCHASE"],["2025-06-03",35.01,42,6,0,"YOUTUBE PREMIUM DEBIT"],["2025-06-03",10.96,52,7,1,"PEETS COFFEE PURCHASE"],["2025-06-03",254.11,61,9,0,"AMAZON DEBIT"],["2025-06-04",128.93,7,1,1,"TARGET GROCERY PURCHASE"],["2025-06-04",9.61,16,2,1,"TACO BELL PURCHASE"],["2025-06-04",14.79,50,7,0,"DUNKIN DEBIT"],["2025-06-05",94.92,29,4,2,"ELECTRIC CO PURCHASE"],["2025-06-05",50.5,61,9,0,"AMAZON DEBIT"],["2025-06-06",193.6,2,1,1,"WHOLE FOODS PURCHASE"],["2025-06-06",43.43,19,2,2,"FIVE GUYS PURCHASE"],["2025-06-06",7.47,50,7,1,"DUNKIN PURCHASE"],["2025-06-06",74.93,56,8,1,"HOME GOODS PURCHASE"],["2025-06-07",66.84,12,2,1,"LOCAL BISTRO PURCHASE"],["2025-06-07",299.99,61,9,0,"AMAZON DEBIT"],["2025-06-08",53.34,16,2,2,"TACO BELL PURCHASE"],["2025-06-08",77.17,71,11,2,"MINI GOLF PURCHASE"],["2025-06-08",44.78,101,19,1,"LYFT RIDE PURCHASE"],["2025-06-08",17.75,100,19,0,"UBER RIDE DEBIT"],["2025-06-09",8.65,47,6,2,"GYM MEMBERSHIP PURCHASE"],["2025-06-09",59.98,98,18,0,"UBER EATS DEBIT"],["2025-06-10",220.86,7,1,2,"TARGET GROCERY PURCHASE"],["2025-06-10",4.55,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-06-11",8.6,11,2,2,"OLIVE GARDEN PURCHASE"],["2025-06-11",33.65,13,2,0,"THAI KITCHEN DEBIT"],["2025-06-11",154.76,35,5,1,"PROGRESSIVE PURCHASE"],["2025-06-11",6.96,48,7,2,"STARBUCKS PURCHASE"],["2025-06-12",63.12,27,3,2,"COSTCO GAS PURCHASE"],["2025-06-13",57.29,21,2,1,"CHICK-FIL-A PURCHASE"],["2025-06-13",9.96,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-06-13",12.29,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-06-13",164.51,58,8,2,"ROSS PURCHASE"],["2025-06-14",72.13,6,1,2,"KROGER PURCHASE"],["2025-06-14",17.95,12,2,2,"LOCAL BISTRO PURCHASE"],["2025-06-14",33.01,97,18,1,"DOORDASH PURCHASE"],["2025-06-15",143.7,8,1,1,"FRESH MARKET PURCHASE"],["2025-06-15",226.92,36,5,2,"ALLSTATE PURCHASE"],["2025-06-15",9.29,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-06-15",118.87,83,13,1,"GOODWILL PURCHASE"],["2025-06-16",273.88,32,4,2,"INTERNET PROVIDER PURCHASE"],["2025-06-16",64.66,81,13,2,"H&M PURCHASE"],["2025-06-17",60.77,23,3,1,"BP PURCHASE"],["2025-06-17",14.49,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2025-06-17",3.47,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2025-06-17",13.46,58,8,1,"ROSS PURCHASE"],["2025-06-17",200.27,61,9,2,"AMAZON PURCHASE"],["2025-06-17",27.11,97,18,0,"DOORDASH DEBIT"],["2025-06-20",249.09,3,1,0,"TRADER JOES DEBIT"],["2025-06-20",12.47,48,7,2,"STARBUCKS PURCHASE"],["2025-06-20",176.51,91,16,0,"PETSMART DEBIT"],["2025-06-21",10.38,48,7,2,"STARBUCKS PURCHASE"],["2025-06-21",6.86,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2025-06-21",71.82,95,17,2,"SPA DAY PURCHASE"],["2025-06-22",154.64,9,1,1,"SPROUTS PURCHASE"],["2025-06-22",6.41,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-06-23",46.52,13,2,2,"THAI KITCHEN PURCHASE"],["2025-06-23",132.74,54,8,1,"WALMART PURCHASE"],["2025-06-26",13.55,15,2,2,"SUSHI PLACE PURCHASE"],["2025-06-26",35.74,71,11,0,"MINI GOLF DEBIT"],["2025-06-26",18.07,106,21,1,"MISC PURCHASE PURCHASE"],["2025-06-27",30.63,23,3,0,"BP DEBIT"],["2025-06-27",217.75,61,9,0,"AMAZON DEBIT"],["2025-06-27",16.86,98,18,0,"UBER EATS DEBIT"],["2025-06-27",58.89,98,18,0,"UBER EATS DEBIT"],["2025-06-28",52.33,15,2,2,"SUSHI PLACE PURCHASE"],["2025-06-28",13.48,52,7,1,"PEETS COFFEE PURCHASE"],["2025-06-29",8.4,48,7,2,"STARBUCKS PURCHASE"],["2025-06-30",14.79,15,2,0,"SUSHI PLACE DEBIT"],["2025-07-01",8.99,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2025-07-02",274.98,8,1,1,"FRESH MARKET PURCHASE"],["2025-07-02",23.52,14,2,0,"BURGER JOINT DEBIT"],["2025-07-02",3.81,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2025-07-02",4.84,52,7,1,"PEETS COFFEE PURCHASE"],["2025-07-03",118.47,2,1,1,"WHOLE FOODS PURCHASE"],["2025-07-03",67.77,21,2,1,"CHICK-FIL-A PURCHASE"],["2025-07-03",7.36,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-07-03",179.35,57,8,0,"MARSHALLS DEBIT"],["2025-07-03",42.94,100,19,2,"UBER RIDE PURCHASE"],["2025-07-05",24.4,61,9,1,"AMAZON PURCHASE"],["2025-07-06",153.72,3,1,1,"TRADER JOES PURCHASE"],["2025-07-07",36.06,24,3,0,"CHEVRON DEBIT"],["2025-07-07",77.16,96,17,1,"ULTA BEAUTY PURCHASE"],["2025-07-08",47.29,6,1,0,"KROGER DEBIT"],["2025-07-08",92.19,4,1,0,"COSTCO DEBIT"],["2025-07-08",295.61,61,9,0,"AMAZON DEBIT"],["2025-07-08",12.75,61,9,2,"AMAZON PURCHASE"],["2025-07-09",13.43,102,19,2,"METRO TRANSIT PURCHASE"],["2025-07-10",5.4,51,7,0,"BLUE BOTTLE DEBIT"],["2025-07-10",89.36,86,14,2,"HOME DEPOT PURCHASE"],["2025-07-11",24.92,42,6,2,"YOUTUBE PREMIUM PURCHASE"],["2025-07-11",6.0,50,7,0,"DUNKIN DEBIT"],["2025-07-12",3.51,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-07-12",7.59,50,7,2,"DUNKIN PURCHASE"],["2025-07-13",341.85,31,4,1,"GAS UTILITY PURCHASE"],["2025-07-14",31.64,9,1,1,"SPROUTS PURCHASE"],["2025-07-14",32.99,39,6,0,"SPOTIFY DEBIT"],["2025-07-14",30.56,102,19,1,"METRO TRANSIT PURCHASE"],["2025-07-16",22.04,20,2,0,"SHAKE SHACK DEBIT"],["2025-07-16",21.65,24,3,2,"CHEVRON PURCHASE"],["2025-07-17",64.51,25,3,2,"QUIKTRIP PURCHASE"],["2025-07-17",171.5,92,16,1,"VET CLINIC PURCHASE"],["2025-07-18",70.64,15,2,0,"SUSHI PLACE DEBIT"],["2025-07-18",25.88,42,6,0,"YOUTUBE PREMIUM DEBIT"],["2025-07-18",38.64,97,18,0,"DOORDASH DEBIT"],["2025-07-19",9.35,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2025-07-19",142.88,61,9,2,"AMAZON PURCHASE"],["2025-07-19",20.17,99,18,2,"GRUBHUB PURCHASE"],["2025-07-20",182.47,2,1,2,"WHOLE FOODS PURCHASE"],["2025-07-20",78.75,7,1,1,"TARGET GROCERY PURCHASE"],["2025-07-20",6.29,51,7,0,"BLUE BOTTLE DEBIT"],["2025-07-20",59.81,99,18,1,"GRUBHUB PURCHASE"],["2025-07-21",67.41,11,2,2,"OLIVE GARDEN PURCHASE"],["2025-07-21",50.88,107,21,2,"ATM WITHDRAWAL PURCHASE"],["2025-07-22",14.43,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2025-07-22",136.89,58,8,2,"ROSS PURCHASE"],["2025-07-22",47.9,72,11,2,"ESCAPE ROOM PURCHASE"],["2025-07-23",153.88,32,4,2,"INTERNET PROVIDER PURCHASE"],["2025-07-23",15.83,44,6,1,"DISNEY+ PURCHASE"],["2025-07-23",5.57,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-07-23",160.8,55,8,2,"TJ MAXX PURCHASE"],["2025-07-23",160.08,61,9,1,"AMAZON PURCHASE"],["2025-07-24",109.63,2,1,0,"WHOLE FOODS DEBIT"],["2025-07-25",18.27,15,2,1,"SUSHI PLACE PURCHASE"],["2025-07-26",39.66,24,3,1,"CHEVRON PURCHASE"],["2025-07-27",43.78,20,2,2,"SHAKE SHACK PURCHASE"],["2025-07-27",41.97,61,9,1,"AMAZON PURCHASE"],["2025-07-27",14.18,99,18,0,"GRUBHUB DEBIT"],["2025-07-28",34.94,27,3,0,"COSTCO GAS DEBIT"],["2025-07-28",11.14,52,7,1,"PEETS COFFEE PURCHASE"],["2025-07-28",8.42,48,7,2,"STARBUCKS PURCHASE"],["2025-07-29",32.3,10,2,1,"CHIPOTLE PURCHASE"],["2025-07-30",4.41,52,7,1,"PEETS COFFEE PURCHASE"],["2025-07-31",1311.19,1,0,0,"ABC PROPERTY MGMT DEBIT"],["2025-07-31",7.46,50,7,0,"DUNKIN DEBIT"],["2025-07-31",73.4,81,13,0,"H&M DEBIT"],["2025-08-01",195.91,93,16,0,"CHEWY.COM DEBIT"],["2025-08-02",22.3,25,3,2,"QUIKTRIP PURCHASE"],["2025-08-02",201.31,35,5,1,"PROGRESSIVE PURCHASE"],["2025-08-02",8.77,52,7,2,"PEETS COFFEE PURCHASE"],["2025-08-02",46.57,97,18,0,"DOORDASH DEBIT"],["2025-08-04",3.23,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2025-08-04",115.02,84,13,0,"NIKE STORE DEBIT"],["2025-08-04",265.15,90,15,1,"ROBINHOOD PURCHASE"],["2025-08-05",3.38,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2025-08-07",44.9,24,3,0,"CHEVRON DEBIT"],["2025-08-07",165.01,37,5,0,"GEICO DEBIT"],["2025-08-07",6.9,52,7,2,"PEETS COFFEE PURCHASE"],["2025-08-07",98.53,61,9,1,"AMAZON PURCHASE"],["2025-08-08",232.5,61,9,2,"AMAZON PURCHASE"],["2025-08-09",64.51,28,3,2,"JIFFY LUBE PURCHASE"],["2025-08-11",138.62,5,1,1,"ALDI PURCHASE"],["2025-08-11",66.76,13,2,1,"THAI KITCHEN PURCHASE"],["2025-08-11",331.07,33,4,0,"CITY SERVICES DEBIT"],["2025-08-11",30.54,40,6,2,"APPLE ICLOUD PURCHASE"],["2025-08-12",11.09,50,7,1,"DUNKIN PURCHASE"],["2025-08-13",40.27,26,3,2,"PHILLIPS 66 PURCHASE"],["2025-08-14",7.96,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2025-08-14",12.3,52,7,1,"PEETS COFFEE PURCHASE"],["2025-08-14",75.78,96,17,1,"ULTA BEAUTY PURCHASE"],["2025-08-15",52.33,5,1,0,"ALDI DEBIT"],["2025-08-16",14.93,10,2,1,"CHIPOTLE PURCHASE"],["2025-08-16",75.94,19,2,2,"FIVE GUYS PURCHASE"],["2025-08-16",7.52,52,7,0,"PEETS COFFEE DEBIT"],["2025-08-17",46.4,17,2,1,"PIZZA HUT PURCHASE"],["2025-08-17",82.43,17,2,0,"PIZZA HUT DEBIT"],["2025-08-17",322.59,86,14,0,"HOME DEPOT DEBIT"],["2025-08-18",138.42,58,8,2,"ROSS PURCHASE"],["2025-08-18",89.9,61,9,2,"AMAZON PURCHASE"],["2025-08-18",50.33,99,18,0,"GRUBHUB DEBIT"],["2025-08-19",11.75,15,2,1,"SUSHI PLACE PURCHASE"],["2025-08-19",8.7,50,7,0,"DUNKIN DEBIT"],["2025-08-19",12.56,50,7,2,"DUNKIN PURCHASE"],["2025-08-20",27.12,16,2,0,"TACO BELL DEBIT"],["2025-08-20",25.79,22,3,0,"SHELL DEBIT"],["2025-08-21",12.3,52,7,1,"PEETS COFFEE PURCHASE"],["2025-08-21",92.21,70,11,0,"BOWLING ALLEY DEBIT"],["2025-08-22",30.0,17,2,0,"PIZZA HUT DEBIT"],["2025-08-22",125.91,57,8,0,"MARSHALLS DEBIT"],["2025-08-22",269.25,61,9,1,"AMAZON PURCHASE"],["2025-08-23",48.1,68,11,1,"MOVIE THEATER PURCHASE"],["2025-08-24",66.82,15,2,1,"SUSHI PLACE PURCHASE"],["2025-08-24",43.59,42,6,2,"YOUTUBE PREMIUM PURCHASE"],["2025-08-25",151.47,7,1,0,"TARGET GROCERY DEBIT"],["2025-08-26",12.45,101,19,2,"LYFT RIDE PURCHASE"],["2025-08-27",79.9,15,2,2,"SUSHI PLACE PURCHASE"],["2025-08-27",39.6,46,6,2,"CHATGPT PLUS PURCHASE"],["2025-08-27",286.61,61,9,0,"AMAZON DEBIT"],["2025-08-28",273.47,7,1,0,"TARGET GROCERY DEBIT"],["2025-08-28",41.18,11,2,1,"OLIVE GARDEN PURCHASE"],["2025-08-28",10.16,48,7,1,"STARBUCKS PURCHASE"],["2025-08-28",11.47,48,7,2,"STARBUCKS PURCHASE"],["2025-08-29",14.09,46,6,2,"CHATGPT PLUS PURCHASE"],["2025-08-29",5.88,106,21,2,"MISC PURCHASE PURCHASE"],["2025-08-30",108.98,84,13,0,"NIKE STORE DEBIT"],["2025-08-30",21.72,100,19,0,"UBER RIDE DEBIT"],["2025-08-30",44.89,100,19,1,"UBER RIDE PURCHASE"],["2025-08-31",9.93,52,7,2,"PEETS COFFEE PURCHASE"],["2025-08-31",87.31,61,9,1,"AMAZON PURCHASE"],["2025-08-31",29.02,98,18,2,"UBER EATS PURCHASE"],["2025-09-02",183.34,33,4,1,"CITY SERVICES PURCHASE"],["2025-09-02",10.17,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-09-02",128.94,55,8,1,"TJ MAXX PURCHASE"],["2025-09-03",16.64,19,2,2,"FIVE GUYS PURCHASE"],["2025-09-03",125.77,89,15,1,"FIDELITY TRANSFER PURCHASE"],["2025-09-04",14.91,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2025-09-05",34.77,23,3,2,"BP PURCHASE"],["2025-09-05",5.26,50,7,2,"DUNKIN PURCHASE"],["2025-09-06",210.2,2,1,1,"WHOLE FOODS PURCHASE"],["2025-09-06",141.53,4,1,0,"COSTCO DEBIT"],["2025-09-06",12.19,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2025-09-07",23.07,98,18,1,"UBER EATS PURCHASE"],["2025-09-07",41.61,101,19,2,"LYFT RIDE PURCHASE"],["2025-09-08",44.82,12,2,1,"LOCAL BISTRO PURCHASE"],["2025-09-08",3.81,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2025-09-08",6.83,52,7,2,"PEETS COFFEE PURCHASE"],["2025-09-08",176.49,57,8,2,"MARSHALLS PURCHASE"],["2025-09-09",53.72,107,21,1,"ATM WITHDRAWAL PURCHASE"],["2025-09-10",23.23,97,18,0,"DOORDASH DEBIT"],["2025-09-11",121.22,3,1,0,"TRADER JOES DEBIT"],["2025-09-13",46.69,20,2,2,"SHAKE SHACK PURCHASE"],["2025-09-13",5.81,51,7,0,"BLUE BOTTLE DEBIT"],["2025-09-14",12.19,52,7,0,"PEETS COFFEE DEBIT"],["2025-09-14",86.55,84,13,1,"NIKE STORE PURCHASE"],["2025-09-15",81.46,14,2,1,"BURGER JOINT PURCHASE"],["2025-09-15",50.61,22,3,2,"SHELL PURCHASE"],["2025-09-15",22.5,28,3,0,"JIFFY LUBE DEBIT"],["2025-09-15",7.51,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-09-15",8.09,52,7,1,"PEETS COFFEE PURCHASE"],["2025-09-15",66.63,108,21,1,"VENMO PAYMENT PURCHASE"],["2025-09-16",103.43,69,11,1,"CONCERT TICKETS PURCHASE"],["2025-09-17",48.67,17,2,1,"PIZZA HUT PURCHASE"],["2025-09-17",11.73,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2025-09-17",88.58,56,8,1,"HOME GOODS PURCHASE"],["2025-09-18",66.32,17,2,2,"PIZZA HUT PURCHASE"],["2025-09-18",65.75,38,6,0,"NETFLIX DEBIT"],["2025-09-18",18.91,60,8,1,"DOLLAR TREE PURCHASE"],["2025-09-19",61.51,5,1,2,"ALDI PURCHASE"],["2025-09-19",52.11,21,2,1,"CHICK-FIL-A PURCHASE"],["2025-09-19",24.09,25,3,2,"QUIKTRIP PURCHASE"],["2025-09-21",61.34,15,2,0,"SUSHI PLACE DEBIT"],["2025-09-21",7.49,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-09-21",236.81,61,9,1,"AMAZON PURCHASE"],["2025-09-21",461.89,85,14,1,"LOWES PURCHASE"],["2025-09-22",43.84,11,2,0,"OLIVE GARDEN DEBIT"],["2025-09-22",4.6,52,7,1,"PEETS COFFEE PURCHASE"],["2025-09-23",125.44,61,9,1,"AMAZON PURCHASE"],["2025-09-24",1848.29,1,0,0,"ABC PROPERTY MGMT DEBIT"],["2025-09-24",36.77,19,2,2,"FIVE GUYS PURCHASE"],["2025-09-24",162.74,29,4,0,"ELECTRIC CO DEBIT"],["2025-09-24",178.31,35,5,0,"PROGRESSIVE DEBIT"],["2025-09-24",51.58,97,18,1,"DOORDASH PURCHASE"],["2025-09-25",61.15,14,2,2,"BURGER JOINT PURCHASE"],["2025-09-25",75.23,19,2,0,"FIVE GUYS DEBIT"],["2025-09-25",3.39,48,7,2,"STARBUCKS PURCHASE"],["2025-09-25",4.68,48,7,1,"STARBUCKS PURCHASE"],["2025-09-25",50.39,99,18,2,"GRUBHUB PURCHASE"],["2025-09-27",66.66,13,2,2,"THAI KITCHEN PURCHASE"],["2025-09-27",12.07,48,7,1,"STARBUCKS PURCHASE"],["2025-09-27",5.97,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2025-09-28",5.94,48,7,0,"STARBUCKS DEBIT"],["2025-09-28",25.88,73,11,1,"ARCADE PURCHASE"],["2025-09-29",234.15,8,1,2,"FRESH MARKET PURCHASE"],["2025-09-29",23.57,18,2,2,"PANERA BREAD PURCHASE"],["2025-09-30",36.3,14,2,0,"BURGER JOINT DEBIT"],["2025-09-30",7.06,45,6,1,"NY TIMES PURCHASE"],["2025-09-30",32.83,100,19,2,"UBER RIDE PURCHASE"],["2025-10-01",1753.31,1,0,0,"ABC PROPERTY MGMT DEBIT"],["2025-10-01",56.59,26,3,2,"PHILLIPS 66 PURCHASE"],["2025-10-02",8.25,48,7,0,"STARBUCKS DEBIT"],["2025-10-03",19.63,21,2,0,"CHICK-FIL-A DEBIT"],["2025-10-03",337.38,31,4,1,"GAS UTILITY PURCHASE"],["2025-10-03",283.17,61,9,1,"AMAZON PURCHASE"],["2025-10-03",70.96,70,11,2,"BOWLING ALLEY PURCHASE"],["2025-10-05",99.5,30,4,2,"WATER DEPT PURCHASE"],["2025-10-05",9.01,48,7,1,"STARBUCKS PURCHASE"],["2025-10-05",98.42,61,9,0,"AMAZON DEBIT"],["2025-10-05",20.86,97,18,1,"DOORDASH PURCHASE"],["2025-10-06",3.19,50,7,0,"DUNKIN DEBIT"],["2025-10-06",5.89,52,7,1,"PEETS COFFEE PURCHASE"],["2025-10-06",26.28,59,8,2,"FIVE BELOW PURCHASE"],["2025-10-06",137.41,61,9,2,"AMAZON PURCHASE"],["2025-10-08",63.58,41,6,2,"ADOBE CREATIVE PURCHASE"],["2025-10-09",122.87,31,4,1,"GAS UTILITY PURCHASE"],["2025-10-09",117.1,61,9,2,"AMAZON PURCHASE"],["2025-10-10",191.14,34,5,2,"STATE FARM PURCHASE"],["2025-10-10",145.49,56,8,0,"HOME GOODS DEBIT"],["2025-10-11",115.66,5,1,0,"ALDI DEBIT"],["2025-10-11",12.23,52,7,2,"PEETS COFFEE PURCHASE"],["2025-10-12",35.16,61,9,0,"AMAZON DEBIT"],["2025-10-12",62.04,98,18,2,"UBER EATS PURCHASE"],["2025-10-13",40.93,44,6,0,"DISNEY+ DEBIT"],["2025-10-13",3.36,50,7,1,"DUNKIN PURCHASE"],["2025-10-13",54.4,80,13,1,"OLD NAVY PURCHASE"],["2025-10-14",72.88,12,2,0,"LOCAL BISTRO DEBIT"],["2025-10-14",62.29,28,3,0,"JIFFY LUBE DEBIT"],["2025-10-14",37.66,98,18,0,"UBER EATS DEBIT"],["2025-10-15",10.42,100,19,0,"UBER RIDE DEBIT"],["2025-10-15",45.91,107,21,2,"ATM WITHDRAWAL PURCHASE"],["2025-10-16",83.19,7,1,1,"TARGET GROCERY PURCHASE"],["2025-10-16",46.92,44,6,1,"DISNEY+ PURCHASE"],["2025-10-17",72.61,10,2,0,"CHIPOTLE DEBIT"],["2025-10-17",36.74,17,2,2,"PIZZA HUT PURCHASE"],["2025-10-18",8.91,16,2,2,"TACO BELL PURCHASE"],["2025-10-18",290.26,86,14,0,"HOME DEPOT DEBIT"],["2025-10-19",93.23,8,1,0,"FRESH MARKET DEBIT"],["2025-10-19",248.34,35,5,0,"PROGRESSIVE DEBIT"],["2025-10-19",63.16,39,6,0,"SPOTIFY DEBIT"],["2025-10-19",12.03,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2025-10-20",33.54,106,21,2,"MISC PURCHASE PURCHASE"],["2025-10-21",79.91,20,2,1,"SHAKE SHACK PURCHASE"],["2025-10-21",50.68,38,6,0,"NETFLIX DEBIT"],["2025-10-21",28.75,101,19,0,"LYFT RIDE DEBIT"],["2025-10-22",9.21,17,2,2,"PIZZA HUT PURCHASE"],["2025-10-22",6.98,52,7,2,"PEETS COFFEE PURCHASE"],["2025-10-24",44.11,24,3,1,"CHEVRON PURCHASE"],["2025-10-26",59.86,7,1,2,"TARGET GROCERY PURCHASE"],["2025-10-26",8.89,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-10-27",14.15,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-10-29",84.25,18,2,0,"PANERA BREAD DEBIT"],["2025-10-29",8.71,52,7,0,"PEETS COFFEE DEBIT"],["2025-10-29",9.76,52,7,0,"PEETS COFFEE DEBIT"],["2025-10-30",11.21,48,7,1,"STARBUCKS PURCHASE"],["2025-10-31",137.12,9,1,2,"SPROUTS PURCHASE"],["2025-10-31",11.74,20,2,0,"SHAKE SHACK DEBIT"],["2025-10-31",18.29,101,19,2,"LYFT RIDE PURCHASE"],["2025-11-01",264.89,9,1,0,"SPROUTS DEBIT"],["2025-11-01",16.05,17,2,1,"PIZZA HUT PURCHASE"],["2025-11-02",138.78,88,14,0,"IKEA DEBIT"],["2025-11-03",6.76,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2025-11-04",11.05,50,7,1,"DUNKIN PURCHASE"],["2025-11-05",224.11,8,1,0,"FRESH MARKET DEBIT"],["2025-11-05",32.02,15,2,1,"SUSHI PLACE PURCHASE"],["2025-11-05",7.66,52,7,2,"PEETS COFFEE PURCHASE"],["2025-11-06",30.71,44,6,2,"DISNEY+ PURCHASE"],["2025-11-06",26.19,43,6,1,"HULU PURCHASE"],["2025-11-06",130.75,60,8,2,"DOLLAR TREE PURCHASE"],["2025-11-07",195.65,4,1,2,"COSTCO PURCHASE"],["2025-11-07",28.83,83,13,2,"GOODWILL PURCHASE"],["2025-11-08",94.08,33,4,0,"CITY SERVICES DEBIT"],["2025-11-09",47.32,13,2,2,"THAI KITCHEN PURCHASE"],["2025-11-09",42.53,39,6,2,"SPOTIFY PURCHASE"],["2025-11-09",26.55,102,19,1,"METRO TRANSIT PURCHASE"],["2025-11-10",5.2,48,7,2,"STARBUCKS PURCHASE"],["2025-11-10",45.55,55,8,1,"TJ MAXX PURCHASE"],["2025-11-10",86.08,61,9,2,"AMAZON PURCHASE"],["2025-11-10",235.32,61,9,2,"AMAZON PURCHASE"],["2025-11-11",242.94,37,5,0,"GEICO DEBIT"],["2025-11-13",50.81,38,6,0,"NETFLIX DEBIT"],["2025-11-13",4.37,52,7,1,"PEETS COFFEE PURCHASE"],["2025-11-14",149.17,61,9,0,"AMAZON DEBIT"],["2025-11-15",235.29,6,1,0,"KROGER DEBIT"],["2025-11-15",169.29,9,1,2,"SPROUTS PURCHASE"],["2025-11-15",38.12,15,2,2,"SUSHI PLACE PURCHASE"],["2025-11-15",23.02,24,3,0,"CHEVRON DEBIT"],["2025-11-16",101.36,5,1,1,"ALDI PURCHASE"],["2025-11-16",39.72,22,3,2,"SHELL PURCHASE"],["2025-11-16",62.56,61,9,1,"AMAZON PURCHASE"],["2025-11-17",159.07,8,1,1,"FRESH MARKET PURCHASE"],["2025-11-17",10.16,50,7,2,"DUNKIN PURCHASE"],["2025-11-18",60.95,19,2,0,"FIVE GUYS DEBIT"],["2025-11-18",125.69,61,9,1,"AMAZON PURCHASE"],["2025-11-18",69.62,70,11,0,"BOWLING ALLEY DEBIT"],["2025-11-19",46.54,21,2,1,"CHICK-FIL-A PURCHASE"],["2025-11-19",239.78,61,9,0,"AMAZON DEBIT"],["2025-11-20",34.22,41,6,1,"ADOBE CREATIVE PURCHASE"],["2025-11-20",174.45,53,8,0,"TARGET DEBIT"],["2025-11-20",53.6,97,18,0,"DOORDASH DEBIT"],["2025-11-21",79.14,6,1,2,"KROGER PURCHASE"],["2025-11-21",11.41,19,2,2,"FIVE GUYS PURCHASE"],["2025-11-22",38.77,20,2,1,"SHAKE SHACK PURCHASE"],["2025-11-23",43.98,3,1,0,"TRADER JOES DEBIT"],["2025-11-23",14.02,50,7,2,"DUNKIN PURCHASE"],["2025-11-23",45.54,99,18,0,"GRUBHUB DEBIT"],["2025-11-23",16.57,101,19,1,"LYFT RIDE PURCHASE"],["2025-11-24",167.17,61,9,0,"AMAZON DEBIT"],["2025-11-25",28.64,94,17,2,"GREAT CLIPS PURCHASE"],["2025-11-26",16.16,16,2,0,"TACO BELL DEBIT"],["2025-11-26",43.45,23,3,1,"BP PURCHASE"],["2025-11-26",328.28,30,4,2,"WATER DEPT PURCHASE"],["2025-11-26",42.21,97,18,2,"DOORDASH PURCHASE"],["2025-11-27",111.73,8,1,2,"FRESH MARKET PURCHASE"],["2025-11-27",193.34,8,1,0,"FRESH MARKET DEBIT"],["2025-11-28",240.87,31,4,2,"GAS UTILITY PURCHASE"],["2025-11-28",10.41,51,7,2,"BLUE BOTTLE PURCHASE"],["2025-11-29",82.44,108,21,0,"VENMO PAYMENT DEBIT"],["2025-11-30",16.94,11,2,2,"OLIVE GARDEN PURCHASE"],["2025-11-30",115.43,55,8,1,"TJ MAXX PURCHASE"],["2025-12-01",18.35,42,6,2,"YOUTUBE PREMIUM PURCHASE"],["2025-12-01",3.81,52,7,1,"PEETS COFFEE PURCHASE"],["2025-12-01",104.46,68,11,0,"MOVIE THEATER DEBIT"],["2025-12-01",40.75,108,21,2,"VENMO PAYMENT PURCHASE"],["2025-12-02",56.17,16,2,2,"TACO BELL PURCHASE"],["2025-12-02",15.65,98,18,1,"UBER EATS PURCHASE"],["2025-12-03",35.75,20,2,0,"SHAKE SHACK DEBIT"],["2025-12-03",53.71,12,2,2,"LOCAL BISTRO PURCHASE"],["2025-12-03",83.4,29,4,0,"ELECTRIC CO DEBIT"],["2025-12-03",9.45,52,7,0,"PEETS COFFEE DEBIT"],["2025-12-04",36.3,15,2,1,"SUSHI PLACE PURCHASE"],["2025-12-05",67.56,16,2,0,"TACO BELL DEBIT"],["2025-12-05",41.13,53,8,1,"TARGET PURCHASE"],["2025-12-05",42.3,100,19,0,"UBER RIDE DEBIT"],["2025-12-07",78.02,21,2,2,"CHICK-FIL-A PURCHASE"],["2025-12-07",14.07,48,7,1,"STARBUCKS PURCHASE"],["2025-12-08",1911.39,0,0,0,"RENT PAYMENT DEBIT"],["2025-12-09",21.13,39,6,2,"SPOTIFY PURCHASE"],["2025-12-09",6.72,48,7,2,"STARBUCKS PURCHASE"],["2025-12-09",82.57,61,9,2,"AMAZON PURCHASE"],["2025-12-09",385.77,89,15,0,"FIDELITY TRANSFER DEBIT"],["2025-12-10",75.33,12,2,1,"LOCAL BISTRO PURCHASE"],["2025-12-11",165.03,4,1,1,"COSTCO PURCHASE"],["2025-12-11",84.09,11,2,1,"OLIVE GARDEN PURCHASE"],["2025-12-11",41.31,97,18,0,"DOORDASH DEBIT"],["2025-12-12",77.59,20,2,0,"SHAKE SHACK DEBIT"],["2025-12-12",4.58,50,7,2,"DUNKIN PURCHASE"],["2025-12-12",152.38,61,9,2,"AMAZON PURCHASE"],["2025-12-12",27.45,97,18,1,"DOORDASH PURCHASE"],["2025-12-13",199.1,6,1,1,"KROGER PURCHASE"],["2025-12-13",271.55,5,1,0,"ALDI DEBIT"],["2025-12-13",64.27,11,2,0,"OLIVE GARDEN DEBIT"],["2025-12-13",39.16,81,13,0,"H&M DEBIT"],["2025-12-14",9.56,50,7,0,"DUNKIN DEBIT"],["2025-12-15",182.91,3,1,0,"TRADER JOES DEBIT"],["2025-12-15",101.73,9,1,0,"SPROUTS DEBIT"],["2025-12-15",8.05,17,2,1,"PIZZA HUT PURCHASE"],["2025-12-15",52.51,24,3,2,"CHEVRON PURCHASE"],["2025-12-16",100.56,6,1,1,"KROGER PURCHASE"],["2025-12-16",4.35,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-12-17",53.61,41,6,1,"ADOBE CREATIVE PURCHASE"],["2025-12-17",10.54,50,7,2,"DUNKIN PURCHASE"],["2025-12-17",41.72,57,8,0,"MARSHALLS DEBIT"],["2025-12-18",7.69,50,7,2,"DUNKIN PURCHASE"],["2025-12-18",45.31,83,13,0,"GOODWILL DEBIT"],["2025-12-19",47.46,22,3,0,"SHELL DEBIT"],["2025-12-19",148.98,32,4,1,"INTERNET PROVIDER PURCHASE"],["2025-12-19",44.91,101,19,0,"LYFT RIDE DEBIT"],["2025-12-20",23.52,47,6,2,"GYM MEMBERSHIP PURCHASE"],["2025-12-21",181.37,6,1,1,"KROGER PURCHASE"],["2025-12-21",240.28,7,1,2,"TARGET GROCERY PURCHASE"],["2025-12-21",26.43,27,3,2,"COSTCO GAS PURCHASE"],["2025-12-21",12.41,48,7,0,"STARBUCKS DEBIT"],["2025-12-21",3.85,52,7,0,"PEETS COFFEE DEBIT"],["2025-12-21",151.36,61,9,2,"AMAZON PURCHASE"],["2025-12-22",8.72,17,2,2,"PIZZA HUT PURCHASE"],["2025-12-23",41.05,13,2,0,"THAI KITCHEN DEBIT"],["2025-12-23",8.08,11,2,1,"OLIVE GARDEN PURCHASE"],["2025-12-23",44.78,12,2,0,"LOCAL BISTRO DEBIT"],["2025-12-24",61.4,23,3,2,"BP PURCHASE"],["2025-12-24",3.69,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2025-12-24",32.69,55,8,2,"TJ MAXX PURCHASE"],["2025-12-24",221.22,61,9,0,"AMAZON DEBIT"],["2025-12-24",35.12,68,11,2,"MOVIE THEATER PURCHASE"],["2025-12-24",14.7,102,19,1,"METRO TRANSIT PURCHASE"],["2025-12-24",35.42,102,19,0,"METRO TRANSIT DEBIT"],["2025-12-25",144.71,8,1,2,"FRESH MARKET PURCHASE"],["2025-12-25",14.45,51,7,0,"BLUE BOTTLE DEBIT"],["2025-12-25",8.08,51,7,1,"BLUE BOTTLE PURCHASE"],["2025-12-25",6.72,48,7,1,"STARBUCKS PURCHASE"],["2025-12-25",103.83,61,9,1,"AMAZON PURCHASE"],["2025-12-25",359.29,62,10,2,"CVS PHARMACY PURCHASE"],["2025-12-26",251.95,7,1,0,"TARGET GROCERY DEBIT"],["2025-12-27",9.25,17,2,0,"PIZZA HUT DEBIT"],["2025-12-27",88.33,108,21,1,"VENMO PAYMENT PURCHASE"],["2025-12-28",208.7,3,1,1,"TRADER JOES PURCHASE"],["2025-12-28",53.0,98,18,1,"UBER EATS PURCHASE"],["2025-12-30",14.69,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2025-12-30",4.39,51,7,2,"BLUE BOTTLE PURCHASE"],["2026-01-01",73.8,16,2,2,"TACO BELL PURCHASE"],["2026-01-01",57.37,22,3,0,"SHELL DEBIT"],["2026-01-01",101.3,29,4,2,"ELECTRIC CO PURCHASE"],["2026-01-01",5.2,61,9,2,"AMAZON PURCHASE"],["2026-01-02",2097.29,0,0,0,"RENT PAYMENT DEBIT"],["2026-01-02",190.55,8,1,0,"FRESH MARKET DEBIT"],["2026-01-02",65.07,40,6,1,"APPLE ICLOUD PURCHASE"],["2026-01-02",9.35,51,7,2,"BLUE BOTTLE PURCHASE"],["2026-01-02",9.91,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2026-01-02",43.93,97,18,2,"DOORDASH PURCHASE"],["2026-01-03",148.94,3,1,2,"TRADER JOES PURCHASE"],["2026-01-03",51.07,5,1,2,"ALDI PURCHASE"],["2026-01-03",70.18,12,2,1,"LOCAL BISTRO PURCHASE"],["2026-01-03",221.7,33,4,0,"CITY SERVICES DEBIT"],["2026-01-03",73.62,61,9,0,"AMAZON DEBIT"],["2026-01-04",43.0,4,1,1,"COSTCO PURCHASE"],["2026-01-04",55.72,28,3,0,"JIFFY LUBE DEBIT"],["2026-01-05",57.07,23,3,1,"BP PURCHASE"],["2026-01-05",251.83,61,9,1,"AMAZON PURCHASE"],["2026-01-05",50.63,97,18,2,"DOORDASH PURCHASE"],["2026-01-05",34.81,101,19,0,"LYFT RIDE DEBIT"],["2026-01-07",19.42,15,2,2,"SUSHI PLACE PURCHASE"],["2026-01-07",105.52,61,9,0,"AMAZON DEBIT"],["2026-01-08",84.16,6,1,1,"KROGER PURCHASE"],["2026-01-08",38.51,15,2,0,"SUSHI PLACE DEBIT"],["2026-01-08",13.75,48,7,1,"STARBUCKS PURCHASE"],["2026-01-08",4.2,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2026-01-08",9.4,50,7,2,"DUNKIN PURCHASE"],["2026-01-08",27.62,102,19,1,"METRO TRANSIT PURCHASE"],["2026-01-09",4.65,51,7,0,"BLUE BOTTLE DEBIT"],["2026-01-09",3.31,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2026-01-11",134.98,7,1,0,"TARGET GROCERY DEBIT"],["2026-01-11",183.66,58,8,0,"ROSS DEBIT"],["2026-01-11",146.74,81,13,2,"H&M PURCHASE"],["2026-01-12",9.53,51,7,1,"BLUE BOTTLE PURCHASE"],["2026-01-12",9.03,52,7,1,"PEETS COFFEE PURCHASE"],["2026-01-12",377.64,67,10,1,"URGENT CARE PURCHASE"],["2026-01-12",47.27,97,18,0,"DOORDASH DEBIT"],["2026-01-13",50.9,98,18,1,"UBER EATS PURCHASE"],["2026-01-14",136.49,7,1,2,"TARGET GROCERY PURCHASE"],["2026-01-14",8.75,52,7,0,"PEETS COFFEE DEBIT"],["2026-01-15",43.68,14,2,0,"BURGER JOINT DEBIT"],["2026-01-18",82.28,15,2,0,"SUSHI PLACE DEBIT"],["2026-01-18",56.79,61,9,0,"AMAZON DEBIT"],["2026-01-19",233.44,61,9,2,"AMAZON PURCHASE"],["2026-01-20",10.77,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2026-01-21",5.99,52,7,2,"PEETS COFFEE PURCHASE"],["2026-01-21",83.06,106,21,2,"MISC PURCHASE PURCHASE"],["2026-01-21",89.23,108,21,1,"VENMO PAYMENT PURCHASE"],["2026-01-22",28.03,14,2,0,"BURGER JOINT DEBIT"],["2026-01-22",16.23,44,6,0,"DISNEY+ DEBIT"],["2026-01-23",284.53,61,9,2,"AMAZON PURCHASE"],["2026-01-24",31.24,26,3,1,"PHILLIPS 66 PURCHASE"],["2026-01-26",14.87,48,7,2,"STARBUCKS PURCHASE"],["2026-01-27",34.83,8,1,2,"FRESH MARKET PURCHASE"],["2026-01-27",61.66,21,2,0,"CHICK-FIL-A DEBIT"],["2026-01-27",37.25,44,6,1,"DISNEY+ PURCHASE"],["2026-01-28",43.46,55,8,2,"TJ MAXX PURCHASE"],["2026-01-29",12.96,43,6,1,"HULU PURCHASE"],["2026-01-29",3.42,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2026-01-30",200.69,8,1,2,"FRESH MARKET PURCHASE"],["2026-01-30",6.3,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2026-01-30",22.57,61,9,0,"AMAZON DEBIT"],["2026-01-31",328.1,88,14,0,"IKEA DEBIT"],["2026-01-31",32.75,99,18,2,"GRUBHUB PURCHASE"],["2026-02-02",8.29,15,2,0,"SUSHI PLACE DEBIT"],["2026-02-02",41.86,14,2,1,"BURGER JOINT PURCHASE"],["2026-02-02",217.08,33,4,2,"CITY SERVICES PURCHASE"],["2026-02-02",143.88,58,8,1,"ROSS PURCHASE"],["2026-02-02",33.42,99,18,1,"GRUBHUB PURCHASE"],["2026-02-03",172.42,7,1,2,"TARGET GROCERY PURCHASE"],["2026-02-03",49.9,20,2,0,"SHAKE SHACK DEBIT"],["2026-02-04",224.01,9,1,2,"SPROUTS PURCHASE"],["2026-02-04",4.8,51,7,2,"BLUE BOTTLE PURCHASE"],["2026-02-04",12.35,52,7,1,"PEETS COFFEE PURCHASE"],["2026-02-04",76.37,61,9,1,"AMAZON PURCHASE"],["2026-02-05",21.76,47,6,2,"GYM MEMBERSHIP PURCHASE"],["2026-02-05",14.69,50,7,1,"DUNKIN PURCHASE"],["2026-02-06",15.8,10,2,0,"CHIPOTLE DEBIT"],["2026-02-06",245.27,35,5,0,"PROGRESSIVE DEBIT"],["2026-02-07",61.68,16,2,2,"TACO BELL PURCHASE"],["2026-02-07",9.98,11,2,0,"OLIVE GARDEN DEBIT"],["2026-02-08",51.45,14,2,0,"BURGER JOINT DEBIT"],["2026-02-08",32.74,73,11,2,"ARCADE PURCHASE"],["2026-02-09",34.66,3,1,0,"TRADER JOES DEBIT"],["2026-02-09",10.86,51,7,2,"BLUE BOTTLE PURCHASE"],["2026-02-09",3.24,50,7,1,"DUNKIN PURCHASE"],["2026-02-10",15.39,13,2,1,"THAI KITCHEN PURCHASE"],["2026-02-10",56.13,20,2,1,"SHAKE SHACK PURCHASE"],["2026-02-10",13.11,50,7,2,"DUNKIN PURCHASE"],["2026-02-10",217.67,87,14,1,"ACE HARDWARE PURCHASE"],["2026-02-10",19.95,97,18,0,"DOORDASH DEBIT"],["2026-02-12",36.44,16,2,1,"TACO BELL PURCHASE"],["2026-02-12",154.01,61,9,2,"AMAZON PURCHASE"],["2026-02-13",208.98,4,1,2,"COSTCO PURCHASE"],["2026-02-13",26.2,46,6,1,"CHATGPT PLUS PURCHASE"],["2026-02-13",10.42,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2026-02-13",34.47,101,19,2,"LYFT RIDE PURCHASE"],["2026-02-14",12.21,72,11,2,"ESCAPE ROOM PURCHASE"],["2026-02-16",1551.23,1,0,0,"ABC PROPERTY MGMT DEBIT"],["2026-02-16",129.3,2,1,2,"WHOLE FOODS PURCHASE"],["2026-02-16",76.91,17,2,1,"PIZZA HUT PURCHASE"],["2026-02-16",29.82,97,18,1,"DOORDASH PURCHASE"],["2026-02-16",15.38,101,19,1,"LYFT RIDE PURCHASE"],["2026-02-17",64.62,45,6,0,"NY TIMES DEBIT"],["2026-02-18",59.01,27,3,1,"COSTCO GAS PURCHASE"],["2026-02-18",79.57,108,21,2,"VENMO PAYMENT PURCHASE"],["2026-02-19",72.67,18,2,0,"PANERA BREAD DEBIT"],["2026-02-19",41.43,23,3,0,"BP DEBIT"],["2026-02-19",12.1,52,7,0,"PEETS COFFEE DEBIT"],["2026-02-19",106.55,61,9,1,"AMAZON PURCHASE"],["2026-02-20",3.45,51,7,1,"BLUE BOTTLE PURCHASE"],["2026-02-20",5.26,48,7,0,"STARBUCKS DEBIT"],["2026-02-20",57.39,61,9,1,"AMAZON PURCHASE"],["2026-02-20",27.82,98,18,0,"UBER EATS DEBIT"],["2026-02-21",58.1,5,1,0,"ALDI DEBIT"],["2026-02-21",83.23,14,2,1,"BURGER JOINT PURCHASE"],["2026-02-21",96.15,81,13,0,"H&M DEBIT"],["2026-02-21",57.66,98,18,1,"UBER EATS PURCHASE"],["2026-02-21",62.47,99,18,2,"GRUBHUB PURCHASE"],["2026-02-22",56.37,24,3,1,"CHEVRON PURCHASE"],["2026-02-22",18.12,44,6,2,"DISNEY+ PURCHASE"],["2026-02-22",14.67,48,7,0,"STARBUCKS DEBIT"],["2026-02-22",50.23,97,18,2,"DOORDASH PURCHASE"],["2026-02-23",3.47,51,7,1,"BLUE BOTTLE PURCHASE"],["2026-02-23",3.59,49,7,1,"LOCAL COFFEE SHOP PURCHASE"],["2026-02-23",37.64,102,19,1,"METRO TRANSIT PURCHASE"],["2026-02-24",28.43,18,2,1,"PANERA BREAD PURCHASE"],["2026-02-24",89.1,61,9,1,"AMAZON PURCHASE"],["2026-02-25",50.04,27,3,0,"COSTCO GAS DEBIT"],["2026-02-25",30.24,26,3,0,"PHILLIPS 66 DEBIT"],["2026-02-25",6.23,50,7,1,"DUNKIN PURCHASE"],["2026-02-25",344.99,63,10,2,"WALGREENS PURCHASE"],["2026-02-26",93.15,2,1,1,"WHOLE FOODS PURCHASE"],["2026-02-26",100.45,35,5,1,"PROGRESSIVE PURCHASE"],["2026-02-26",10.66,39,6,2,"SPOTIFY PURCHASE"],["2026-02-26",43.19,47,6,1,"GYM MEMBERSHIP PURCHASE"],["2026-02-26",3.79,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2026-02-27",56.83,25,3,1,"QUIKTRIP PURCHASE"],["2026-02-27",11.89,51,7,2,"BLUE BOTTLE PURCHASE"],["2026-02-27",57.4,53,8,1,"TARGET PURCHASE"],["2026-02-27",40.81,96,17,0,"ULTA BEAUTY DEBIT"],["2026-02-27",41.76,98,18,2,"UBER EATS PURCHASE"],["2026-02-28",31.74,11,2,1,"OLIVE GARDEN PURCHASE"],["2026-02-28",13.56,52,7,1,"PEETS COFFEE PURCHASE"],["2026-02-28",12.85,50,7,2,"DUNKIN PURCHASE"],["2026-02-28",43.01,53,8,0,"TARGET DEBIT"],["2026-02-28",329.5,90,15,0,"ROBINHOOD DEBIT"],["2026-03-01",49.1,10,2,2,"CHIPOTLE PURCHASE"],["2026-03-01",8.05,50,7,0,"DUNKIN DEBIT"],["2026-03-01",13.88,48,7,2,"STARBUCKS PURCHASE"],["2026-03-01",71.44,96,17,2,"ULTA BEAUTY PURCHASE"],["2026-03-01",93.77,108,21,2,"VENMO PAYMENT PURCHASE"],["2026-03-02",10.84,48,7,0,"STARBUCKS DEBIT"],["2026-03-02",8.0,48,7,1,"STARBUCKS PURCHASE"],["2026-03-02",63.4,91,16,1,"PETSMART PURCHASE"],["2026-03-03",76.49,17,2,2,"PIZZA HUT PURCHASE"],["2026-03-04",37.39,20,2,1,"SHAKE SHACK PURCHASE"],["2026-03-04",6.03,52,7,2,"PEETS COFFEE PURCHASE"],["2026-03-04",7.85,61,9,0,"AMAZON DEBIT"],["2026-03-04",110.23,71,11,1,"MINI GOLF PURCHASE"],["2026-03-05",34.39,13,2,2,"THAI KITCHEN PURCHASE"],["2026-03-05",41.4,19,2,1,"FIVE GUYS PURCHASE"],["2026-03-05",249.34,36,5,1,"ALLSTATE PURCHASE"],["2026-03-05",11.34,49,7,2,"LOCAL COFFEE SHOP PURCHASE"],["2026-03-05",294.67,67,10,0,"URGENT CARE DEBIT"],["2026-03-06",45.54,11,2,2,"OLIVE GARDEN PURCHASE"],["2026-03-06",56.86,15,2,0,"SUSHI PLACE DEBIT"],["2026-03-07",50.45,22,3,2,"SHELL PURCHASE"],["2026-03-07",12.98,50,7,0,"DUNKIN DEBIT"],["2026-03-08",197.85,60,8,1,"DOLLAR TREE PURCHASE"],["2026-03-09",10.48,52,7,2,"PEETS COFFEE PURCHASE"],["2026-03-09",19.52,60,8,0,"DOLLAR TREE DEBIT"],["2026-03-12",170.18,6,1,1,"KROGER PURCHASE"],["2026-03-12",76.68,10,2,2,"CHIPOTLE PURCHASE"],["2026-03-12",6.54,51,7,0,"BLUE BOTTLE DEBIT"],["2026-03-12",58.95,61,9,1,"AMAZON PURCHASE"],["2026-03-12",432.66,85,14,2,"LOWES PURCHASE"],["2026-03-13",82.33,16,2,1,"TACO BELL PURCHASE"],["2026-03-13",85.19,61,9,1,"AMAZON PURCHASE"],["2026-03-14",75.06,10,2,0,"CHIPOTLE DEBIT"],["2026-03-15",24.12,14,2,0,"BURGER JOINT DEBIT"],["2026-03-15",153.72,36,5,2,"ALLSTATE PURCHASE"],["2026-03-17",134.9,33,4,0,"CITY SERVICES DEBIT"],["2026-03-17",4.41,52,7,0,"PEETS COFFEE DEBIT"],["2026-03-18",13.92,51,7,2,"BLUE BOTTLE PURCHASE"],["2026-03-19",45.7,12,2,0,"LOCAL BISTRO DEBIT"],["2026-03-19",15.98,46,6,1,"CHATGPT PLUS PURCHASE"],["2026-03-19",63.83,97,18,2,"DOORDASH PURCHASE"],["2026-03-21",73.9,3,1,0,"TRADER JOES DEBIT"],["2026-03-22",6.24,52,7,2,"PEETS COFFEE PURCHASE"],["2026-03-22",4.79,51,7,0,"BLUE BOTTLE DEBIT"],["2026-03-22",101.95,61,9,1,"AMAZON PURCHASE"],["2026-03-22",20.4,102,19,2,"METRO TRANSIT PURCHASE"],["2026-03-23",29.39,38,6,2,"NETFLIX PURCHASE"],["2026-03-23",8.03,49,7,0,"LOCAL COFFEE SHOP DEBIT"],["2026-03-23",240.97,61,9,2,"AMAZON PURCHASE"],["2026-03-23",17.05,99,18,2,"GRUBHUB PURCHASE"],["2026-03-24",126.43,6,1,1,"KROGER PURCHASE"],["2026-03-24",30.18,23,3,1,"BP PURCHASE"],["2026-03-24",18.73,40,6,0,"APPLE ICLOUD DEBIT"],["2026-03-24",37.54,97,18,2,"DOORDASH PURCHASE"],["2026-03-25",3.9,52,7,2,"PEETS COFFEE PURCHASE"],["2026-03-26",8.97,48,7,2,"STARBUCKS PURCHASE"],["2026-03-26",90.94,58,8,0,"ROSS DEBIT"],["2026-03-27",132.44,29,4,1,"ELECTRIC CO PURCHASE"],["2026-03-28",52.94,20,2,2,"SHAKE SHACK PURCHASE"],["2026-03-28",171.93,53,8,1,"TARGET PURCHASE"],["2026-03-28",39.51,98,18,2,"UBER EATS PURCHASE"],["2026-03-29",19.03,17,2,2,"PIZZA HUT PURCHASE"],["2026-03-29",341.54,89,15,1,"FIDELITY TRANSFER PURCHASE"],["2026-03-30",265.93,4,1,1,"COSTCO PURCHASE"],["2026-03-30",6.97,51,7,0,"BLUE BOTTLE DEBIT"],["2026-03-31",6.24,44,6,0,"DISNEY+ DEBIT"],["2026-03-31",264.15,61,9,0,"AMAZON DEBIT"],["2026-04-01",233.87,2,1,2,"WHOLE FOODS PURCHASE"],["2026-04-01",72.48,20,2,2,"SHAKE SHACK PURCHASE"],["2026-04-01",12.77,50,7,0,"DUNKIN DEBIT"],["2026-04-02",43.22,17,2,2,"PIZZA HUT PURCHASE"],["2026-04-02",7.57,48,7,0,"STARBUCKS DEBIT"],["2026-04-03",18.81,17,2,2,"PIZZA HUT PURCHASE"],["2026-04-03",40.26,46,6,2,"CHATGPT PLUS PURCHASE"],["2026-04-03",103.06,72,11,0,"ESCAPE ROOM DEBIT"],["2026-04-03",35.75,80,13,1,"OLD NAVY PURCHASE"],["2026-04-04",266.84,9,1,1,"SPROUTS PURCHASE"],["2026-04-04",105.46,2,1,2,"WHOLE FOODS PURCHASE"],["2026-04-04",71.49,17,2,0,"PIZZA HUT DEBIT"],["2026-04-04",249.85,61,9,2,"AMAZON PURCHASE"],["2026-04-04",55.4,108,21,2,"VENMO PAYMENT PURCHASE"],["2026-04-05",338.71,32,4,1,"INTERNET PROVIDER PURCHASE"],["2026-04-05",12.7,51,7,2,"BLUE BOTTLE PURCHASE"],["2026-04-05",4.76,50,7,0,"DUNKIN DEBIT"],["2026-04-05",57.34,61,9,2,"AMAZON PURCHASE"],["2026-04-06",204.91,9,1,1,"SPROUTS PURCHASE"],["2026-04-06",54.45,39,6,2,"SPOTIFY PURCHASE"],["2026-04-06",12.46,53,8,1,"TARGET PURCHASE"],["2026-04-06",65.96,94,17,1,"GREAT CLIPS PURCHASE"],["2026-04-06",40.34,100,19,2,"UBER RIDE PURCHASE"],["2026-04-07",1278.83,0,0,0,"RENT PAYMENT DEBIT"],["2026-04-07",89.15,59,8,2,"FIVE BELOW PURCHASE"],["2026-04-07",71.23,70,11,0,"BOWLING ALLEY DEBIT"],["2026-04-07",26.48,102,19,0,"METRO TRANSIT DEBIT"],["2026-04-08",46.46,7,1,1,"TARGET GROCERY PURCHASE"],["2026-04-08",82.84,30,4,2,"WATER DEPT PURCHASE"],["2026-04-08",42.09,47,6,2,"GYM MEMBERSHIP PURCHASE"],["2026-04-09",82.22,12,2,0,"LOCAL BISTRO DEBIT"],["2026-04-09",11.74,21,2,1,"CHICK-FIL-A PURCHASE"],["2026-04-09",38.84,25,3,2,"QUIKTRIP PURCHASE"],["2026-04-09",260.68,31,4,2,"GAS UTILITY PURCHASE"],["2026-04-09",141.66,57,8,0,"MARSHALLS DEBIT"],["2026-04-09",53.67,97,18,0,"DOORDASH DEBIT"],["2026-04-10",250.88,6,1,2,"KROGER PURCHASE"],["2026-04-10",22.44,13,2,1,"THAI KITCHEN PURCHASE"],["2026-04-10",13.38,52,7,2,"PEETS COFFEE PURCHASE"],["2026-04-10",119.44,80,13,2,"OLD NAVY PURCHASE"],["2026-04-11",47.28,26,3,1,"PHILLIPS 66 PURCHASE"],["2026-04-11",114.15,35,5,2,"PROGRESSIVE PURCHASE"],["2026-04-11",68.79,40,6,2,"APPLE ICLOUD PURCHASE"],["2026-04-11",5.4,48,7,0,"STARBUCKS DEBIT"],["2026-04-12",42.2,2,1,1,"WHOLE FOODS PURCHASE"],["2026-04-12",45.22,9,1,2,"SPROUTS PURCHASE"],["2026-04-12",39.51,21,2,1,"CHICK-FIL-A PURCHASE"],["2026-04-12",16.3,15,2,1,"SUSHI PLACE PURCHASE"],["2026-04-12",25.78,28,3,1,"JIFFY LUBE PURCHASE"],["2026-04-12",132.66,33,4,2,"CITY SERVICES PURCHASE"],["2026-04-12",11.09,51,7,2,"BLUE BOTTLE PURCHASE"],["2026-04-12",5.45,50,7,2,"DUNKIN PURCHASE"],["2026-04-12",227.76,61,9,2,"AMAZON PURCHASE"],["2026-04-12",233.96,61,9,0,"AMAZON DEBIT"],["2026-04-12",60.95,66,10,0,"EYE DOCTOR DEBIT"],["2026-04-13",38.33,9,1,1,"SPROUTS PURCHASE"],["2026-04-13",160.14,6,1,1,"KROGER PURCHASE"],["2026-04-13",61.27,12,2,0,"LOCAL BISTRO DEBIT"],["2026-04-14",231.4,2,1,1,"WHOLE FOODS PURCHASE"],["2026-04-14",45.19,19,2,2,"FIVE GUYS PURCHASE"],["2026-04-14",5.84,108,21,2,"VENMO PAYMENT PURCHASE"]],"i":[["2025-01-10",3152.0,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-01-25",3396.9,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-01-31",860.18,"FREELANCE PAYMENT","Main Bank"],["2025-02-10",3336.07,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-02-25",3164.91,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-03-10",2909.57,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-03-25",3085.96,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-04-10",3006.66,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-04-25",3484.56,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-05-10",3260.14,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-05-25",2848.71,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-06-10",3442.18,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-06-25",3130.72,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-07-10",3084.26,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-07-25",3117.48,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-08-10",3221.95,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-08-25",3449.92,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-09-10",3126.2,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-09-25",3361.97,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-10-10",3463.1,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-10-25",2940.6,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-11-10",3473.94,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-11-25",3349.98,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-12-10",3309.05,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2025-12-25",2872.76,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2026-01-10",2807.98,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2026-01-25",2946.78,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2026-02-10",3050.95,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2026-02-22",1339.44,"FREELANCE PAYMENT","Main Bank"],["2026-02-25",3010.14,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2026-03-10",3394.19,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2026-03-25",3396.31,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2026-04-10",3042.21,"EMPLOYER DIRECT DEPOSIT","Main Bank"],["2026-04-14",2968.24,"EMPLOYER DIRECT DEPOSIT","Main Bank"]],"tr":[["2025-01-13",1447.86,"AMEX CARD PAYMENT","Main Bank"],["2025-02-08",2283.86,"VISA CARD PAYMENT","Main Bank"],["2025-02-21",843.51,"AMEX CARD PAYMENT","Main Bank"],["2025-03-07",1078.69,"VISA CARD PAYMENT","Main Bank"],["2025-04-07",2776.54,"VISA CARD PAYMENT","Main Bank"],["2025-05-17",939.53,"AMEX CARD PAYMENT","Main Bank"],["2025-06-13",332.31,"AMEX CARD PAYMENT","Main Bank"],["2025-06-21",1621.5,"VISA CARD PAYMENT","Main Bank"],["2025-07-15",831.39,"AMEX CARD PAYMENT","Main Bank"],["2025-07-19",1710.63,"VISA CARD PAYMENT","Main Bank"],["2025-08-21",2723.15,"VISA CARD PAYMENT","Main Bank"],["2025-08-25",763.82,"AMEX CARD PAYMENT","Main Bank"],["2025-09-16",2785.83,"VISA CARD PAYMENT","Main Bank"],["2025-09-24",377.72,"AMEX CARD PAYMENT","Main Bank"],["2025-12-21",2902.96,"VISA CARD PAYMENT","Main Bank"],["2026-01-09",2301.03,"VISA CARD PAYMENT","Main Bank"],["2026-01-25",1545.39,"AMEX CARD PAYMENT","Main Bank"],["2026-02-09",1676.95,"VISA CARD PAYMENT","Main Bank"],["2026-03-19",385.6,"AMEX CARD PAYMENT","Main Bank"],["2026-03-21",1301.58,"VISA CARD PAYMENT","Main Bank"],["2026-04-12",1460.34,"AMEX CARD PAYMENT","Main Bank"]]};
+
+// ========== UTILITY FUNCTIONS ==========
+const CATS = RAW.cats;
+const MERCH = RAW.merch;
+const SRCS = RAW.srcs;
+const CAT_COLORS_ARR = getComputedStyle(document.documentElement).getPropertyValue('--cat-colors').split(',').map(s=>s.trim());
+function catColor(i){ return CAT_COLORS_ARR[i % CAT_COLORS_ARR.length]; }
+
+// Parse transactions into objects
+const spending = RAW.s.map(t=>({date:t[0],amount:t[1],merchant:t[2],category:t[3],source:t[4],desc:t[5]}));
+const income = RAW.i.map(t=>({date:t[0],amount:t[1],desc:t[2],source:typeof t[3]==='number'?t[3]:SRCS.indexOf(t[3])}));
+const transfers = RAW.tr.map(t=>({date:t[0],amount:t[1],desc:t[2],source:typeof t[3]==='number'?t[3]:SRCS.indexOf(t[3])}));
+
+// ===== CATEGORY OVERRIDES (localStorage) =====
+// Merchant-level: key = merchant index -> value = category index
+// Transaction-level: key = txnKey (date|merchant|amount) -> value = category index
+function getCatOverrides() { try { return JSON.parse(localStorage.getItem('catOverrides')||'{}'); } catch(e) { return {}; } }
+function saveCatOverrides(o) { localStorage.setItem('catOverrides', JSON.stringify(o)); }
+function getTxnCatOverrides() { try { return JSON.parse(localStorage.getItem('txnCatOverrides')||'{}'); } catch(e) { return {}; } }
+function saveTxnCatOverrides(o) { localStorage.setItem('txnCatOverrides', JSON.stringify(o)); }
+
+// Unique key for a transaction (date + merchant + amount combo)
+function txnKey(t) { return t.date + '|' + t.merchant + '|' + t.amount; }
+
+function applyCatOverrides() {
+  const merchOv = getCatOverrides();
+  const txnOv = getTxnCatOverrides();
+  const otherIdx = CATS.indexOf('Other');
+  spending.forEach(t => {
+    if (merchOv[t.merchant] !== undefined) t.category = merchOv[t.merchant];
+    const tk = txnKey(t);
+    if (txnOv[tk] !== undefined) t.category = txnOv[tk];
+    // Safety: fix any out-of-bounds category indices
+    if (t.category < 0 || t.category >= CATS.length || !CATS[t.category]) t.category = otherIdx;
+  });
+}
+// NOTE: applyCatOverrides is called AFTER loadCustomCats below
+
+// Auto-delete custom categories with zero transactions assigned via overrides
+function pruneEmptyCustomCats() {
+  const custom = getCustomCats();
+  if (!custom.length) return;
+  const merchOv = getCatOverrides();
+  const txnOv = getTxnCatOverrides();
+  // A custom category is "in use" if any override points to its index
+  const usedCatIdxs = new Set([...Object.values(merchOv), ...Object.values(txnOv)]);
+  const toRemove = custom.filter(c => {
+    const idx = CATS.indexOf(c);
+    return idx !== -1 && !usedCatIdxs.has(idx);
+  });
+  if (toRemove.length) {
+    const remaining = custom.filter(c => !toRemove.includes(c));
+    saveCustomCats(remaining);
+  }
+}
+
+function recategorize(merchantIdx, newCatIdx) {
+  const ov = getCatOverrides();
+  if (newCatIdx === -1) { delete ov[merchantIdx]; } else { ov[merchantIdx] = newCatIdx; }
+  saveCatOverrides(ov);
+  RAW.s.forEach((t,i) => { spending[i].category = t[3]; });
+  applyCatOverrides();
+  pruneEmptyCustomCats();
+  const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+  refreshTab(activeTab);
+}
+
+function recategorizeTxn(date, merchant, amount, newCatIdx) {
+  const tk = date + '|' + merchant + '|' + amount;
+  const ov = getTxnCatOverrides();
+  if (newCatIdx === -1) { delete ov[tk]; } else { ov[tk] = newCatIdx; }
+  saveTxnCatOverrides(ov);
+  RAW.s.forEach((t,i) => { spending[i].category = t[3]; });
+  applyCatOverrides();
+  pruneEmptyCustomCats();
+  // Re-render merchant detail if open
+  const panel = document.getElementById('merchDetailPanel');
+  if (panel.style.display === 'block') { showMerchDetail(merchant); }
+}
+
+// Sorted category options helper
+function catOptionsHtml(selectedIdx) {
+  const deleted = getDeletedCats();
+  const sorted = CATS.map((c,i) => ({name:c, idx:i}))
+    .filter(o => !deleted.includes(o.idx) || o.idx === selectedIdx)
+    .sort((a,b) => a.name.localeCompare(b.name));
+  return sorted.map(o => `<option value="${o.idx}"${o.idx===selectedIdx?' selected':''}>${o.name}</option>`).join('');
+}
+
+function catSelectHtml(merchantIdx, currentCatIdx) {
+  const ov = getCatOverrides();
+  const isOverridden = ov[merchantIdx] !== undefined;
+  let html = `<select class="cat-select${isOverridden ? ' overridden' : ''}" onchange="recategorize(${merchantIdx}, parseInt(this.value))">`;
+  html += catOptionsHtml(currentCatIdx);
+  if (isOverridden) html += `<option value="-1">\u21a9 Reset to default</option>`;
+  html += '</select>';
+  return html;
+}
+
+// Merchant-level category select (applies to ALL transactions of this merchant)
+function merchCatSelect(merchantIdx, currentCatIdx) {
+  const ov = getCatOverrides();
+  const isOverridden = ov[merchantIdx] !== undefined;
+  let html = `<select class="cat-select${isOverridden ? ' overridden' : ''}" onclick="event.stopPropagation()" onchange="recategorizeMerchant(${merchantIdx}, parseInt(this.value))">`;
+  html += catOptionsHtml(currentCatIdx);
+  if (isOverridden) html += `<option value="-1">\u21a9 Reset to default</option>`;
+  html += '</select>';
+  return html;
+}
+
+function recategorizeMerchant(merchantIdx, newCatIdx) {
+  recategorize(merchantIdx, newCatIdx);
+}
+
+// ===== CUSTOM CATEGORIES =====
+function getCustomCats() { try { return JSON.parse(localStorage.getItem('customCats')||'[]'); } catch(e) { return []; } }
+function saveCustomCats(arr) { localStorage.setItem('customCats', JSON.stringify(arr)); }
+
+// Load custom categories into CATS array on init
+(function loadCustomCats() {
+  const custom = getCustomCats();
+  custom.forEach(c => { if (!CATS.includes(c)) CATS.push(c); });
+  // Apply saved built-in category renames
+  const renames = JSON.parse(localStorage.getItem('catRenames')||'{}');
+  Object.entries(renames).forEach(([idx, name]) => { if (CATS[parseInt(idx)]) CATS[parseInt(idx)] = name; });
+  // Apply deleted categories — remap original data to Other
+  const deleted = JSON.parse(localStorage.getItem('deletedCats')||'[]');
+  const otherIdx = CATS.indexOf('Other');
+  if (deleted.length) {
+    deleted.forEach(catIdx => { RAW.s.forEach(t => { if (t[3] === catIdx) t[3] = otherIdx; }); });
+  }
+  // Sanitize: fix any out-of-bounds category indices in RAW data
+  RAW.s.forEach(t => { if (t[3] < 0 || t[3] >= CATS.length) t[3] = otherIdx; });
+})();
+// Apply category overrides AFTER custom cats are loaded (so CATS has all indices)
+applyCatOverrides();
+
+function addCustomCategory(name) {
+  name = name.trim();
+  if (!name) return;
+  if (CATS.includes(name)) return; // already exists
+  CATS.push(name);
+  const custom = getCustomCats();
+  custom.push(name);
+  saveCustomCats(custom);
+}
+
+function removeCustomCategory(name) {
+  const custom = getCustomCats();
+  const idx = custom.indexOf(name);
+  if (idx === -1) return; // not a custom one
+  custom.splice(idx, 1);
+  saveCustomCats(custom);
+  const catIdx = CATS.indexOf(name);
+  // Reassign any transactions using this category back to "Other"
+  const otherIdx = CATS.indexOf('Other');
+  const ov = getCatOverrides();
+  Object.keys(ov).forEach(k => { if (ov[k] === catIdx) delete ov[k]; });
+  saveCatOverrides(ov);
+  // Reload categories fresh
+  location.reload();
+}
+
+function renameCustomCategory(oldName, newName) {
+  newName = newName.trim();
+  if (!newName || oldName === newName) return;
+  const custom = getCustomCats();
+  const idx = custom.indexOf(oldName);
+  if (idx === -1) return;
+  custom[idx] = newName;
+  saveCustomCats(custom);
+  const catIdx = CATS.indexOf(oldName);
+  if (catIdx !== -1) CATS[catIdx] = newName;
+  refreshTab(document.querySelector('.tab-btn.active').dataset.tab);
+  openCategoryManager(); // refresh modal
+}
+
+// Track renamed built-in categories in localStorage
+function getCatRenames() { try { return JSON.parse(localStorage.getItem('catRenames')||'{}'); } catch(e) { return {}; } }
+function saveCatRenames(o) { localStorage.setItem('catRenames', JSON.stringify(o)); }
+
+function openCategoryManager() {
+  const custom = getCustomCats();
+
+  let html = `<h2 style="font-size:17px;font-weight:600;margin-bottom:16px">Manage Categories</h2>`;
+
+  // Add new category
+  html += `<div style="display:flex;gap:8px;margin-bottom:16px">
+    <input type="text" id="newCatInput" placeholder="New category name..."
+      style="flex:1;background:var(--bg-input);border:1px solid var(--border-subtle);color:var(--text-primary);
+      border-radius:var(--radius-sm);padding:8px 12px;font-size:14px;outline:none"
+      onkeydown="if(event.key==='Enter'){addCatFromInput()}">
+    <button class="btn btn-primary" onclick="addCatFromInput()" style="padding:8px 16px;font-size:13px">Add Category</button>
+  </div>`;
+
+  // Single unified list sorted alphabetically, excluding deleted
+  const deleted = getDeletedCats();
+  const allCats = CATS.map((c, i) => ({name: c, idx: i, isCustom: custom.includes(c)}))
+    .filter(c => !deleted.includes(c.idx))
+    .sort((a,b) => a.name.localeCompare(b.name));
+
+  html += `<div style="font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:8px;font-weight:500">All Categories (${allCats.length})</div>`;
+  allCats.forEach(cat => {
+    const count = spending.filter(t => t.category === cat.idx).length;
+    const safeC = cat.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    const borderColor = cat.isCustom ? 'var(--amber)' : 'var(--border-subtle)';
+    html += `<div style="display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:var(--radius-xs);
+      background:var(--bg-elevated);margin-bottom:3px;border-left:3px solid ${borderColor}" id="catMgrRow-${cat.idx}">
+      <span class="cat-dot" style="background:${catColor(cat.idx)};flex-shrink:0"></span>
+      <span style="flex:1;font-weight:500;font-size:13px" id="catMgrLabel-${cat.idx}">${safeC}</span>
+      <span style="font-size:11px;color:var(--text-muted);min-width:50px;text-align:right">${count} txns</span>
+      <button class="btn" onclick="startRenameCatByIdx(${cat.idx})" style="padding:2px 8px;font-size:11px">Rename</button>
+      <button class="btn" onclick="confirmDeleteCatByIdx(${cat.idx})" style="padding:2px 8px;font-size:11px;color:var(--red);border-color:rgba(248,113,113,0.3)">Delete</button>
+    </div>`;
+  });
+
+  html += `<p style="margin-top:12px;font-size:11px;color:var(--text-muted)">
+    Deleting a category moves its transactions back to "Other". Renaming updates everywhere instantly.
+    <span style="color:var(--amber)">Amber border</span> = custom category.
+  </p>`;
+
+  openModal(html);
+}
+
+function addCatFromInput() {
+  const input = document.getElementById('newCatInput');
+  const name = input.value.trim();
+  if (!name) return;
+  if (CATS.includes(name)) { input.style.borderColor = 'var(--red)'; setTimeout(()=>input.style.borderColor='', 1500); return; }
+  addCustomCategory(name);
+  openCategoryManager(); // refresh modal
+}
+
+function startRenameCatByIdx(catIdx) {
+  const oldName = CATS[catIdx];
+  const label = document.getElementById('catMgrLabel-' + catIdx);
+  label.innerHTML = `<input type="text" id="renameInputCat${catIdx}" value="${oldName.replace(/"/g,'&quot;')}"
+    style="background:var(--bg-input);border:1px solid var(--blue);color:var(--text-primary);border-radius:var(--radius-xs);padding:4px 8px;font-size:13px;width:160px;outline:none"
+    onkeydown="if(event.key==='Enter')finishRenameCatByIdx(${catIdx}); if(event.key==='Escape')openCategoryManager();">
+  <button class="btn" onclick="finishRenameCatByIdx(${catIdx})" style="padding:2px 8px;font-size:11px;margin-left:4px">Save</button>`;
+  document.getElementById('renameInputCat' + catIdx).focus();
+  document.getElementById('renameInputCat' + catIdx).select();
+}
+
+function finishRenameCatByIdx(catIdx) {
+  const oldName = CATS[catIdx];
+  const input = document.getElementById('renameInputCat' + catIdx);
+  if (!input) return;
+  const newName = input.value.trim();
+  if (!newName || newName === oldName) { openCategoryManager(); return; }
+  if (CATS.includes(newName)) { input.style.borderColor = 'var(--red)'; return; }
+
+  const custom = getCustomCats();
+  const customIdx = custom.indexOf(oldName);
+  if (customIdx !== -1) {
+    // It's a custom category — update custom list
+    custom[customIdx] = newName;
+    saveCustomCats(custom);
+  } else {
+    // It's a built-in category — track the rename
+    const renames = getCatRenames();
+    renames[catIdx] = newName;
+    saveCatRenames(renames);
+  }
+  CATS[catIdx] = newName;
+  refreshTab(document.querySelector('.tab-btn.active').dataset.tab);
+  openCategoryManager();
+}
+
+function confirmDeleteCatByIdx(catIdx) {
+  const name = CATS[catIdx];
+  if (name === 'Other') return; // can't delete Other
+  const row = document.getElementById('catMgrRow-' + catIdx);
+  const count = spending.filter(t => t.category === catIdx).length;
+  row.innerHTML = `<span style="font-size:12px;color:var(--red)">Delete "${name}"? ${count} txns will move to "Other".</span>
+    <button class="btn" onclick="deleteCatByIdx(${catIdx})" style="padding:3px 10px;font-size:11px;color:var(--red);border-color:rgba(248,113,113,0.3)">Yes, Delete</button>
+    <button class="btn" onclick="openCategoryManager()" style="padding:3px 10px;font-size:11px">Cancel</button>`;
+}
+
+// Track deleted categories in localStorage
+function getDeletedCats() { try { return JSON.parse(localStorage.getItem('deletedCats')||'[]'); } catch(e) { return []; } }
+function saveDeletedCats(arr) { localStorage.setItem('deletedCats', JSON.stringify(arr)); }
+
+function deleteCatByIdx(catIdx) {
+  const name = CATS[catIdx];
+  const otherIdx = CATS.indexOf('Other');
+
+  // Move all merchant overrides pointing to this category to Other
+  const ov = getCatOverrides();
+  Object.keys(ov).forEach(k => { if (ov[k] === catIdx) { ov[k] = otherIdx; } });
+  saveCatOverrides(ov);
+
+  // Move all transaction overrides pointing to this category to Other
+  const txnOv = getTxnCatOverrides();
+  Object.keys(txnOv).forEach(k => { if (txnOv[k] === catIdx) { txnOv[k] = otherIdx; } });
+  saveTxnCatOverrides(txnOv);
+
+  // If custom, remove from custom list
+  const custom = getCustomCats();
+  const customIdx = custom.indexOf(name);
+  if (customIdx !== -1) {
+    custom.splice(customIdx, 1);
+    saveCustomCats(custom);
+  } else {
+    // Built-in: track deletion and remap all original data for this category to Other
+    const deleted = getDeletedCats();
+    if (!deleted.includes(catIdx)) { deleted.push(catIdx); saveDeletedCats(deleted); }
+  }
+
+  // Remap original RAW data so this category becomes Other
+  RAW.s.forEach((t, i) => { if (t[3] === catIdx) t[3] = otherIdx; });
+  RAW.s.forEach((t,i) => { spending[i].category = t[3]; });
+  applyCatOverrides();
+  refreshTab(document.querySelector('.tab-btn.active').dataset.tab);
+  openCategoryManager();
+}
+
+// Global state
+let gPreset = 'all';
+let gMonth = 'all'; // kept for backward compat in some functions
+let gSource = 'all';
+let gCatFilter = null;
+let gMerchFilter = null;
+let cfShowTransfers = false;
+let cfShowDebt = false;
+let txnCurrentPage = 0;
+const TXN_PAGE_SIZE = 50;
+let txnFiltered = [];
+let charts = {};
+
+// Build sorted months list
+const allMonths = new Set();
+spending.forEach(t => { allMonths.add(t.date.substring(0,7)); });
+income.forEach(t => { allMonths.add(t.date.substring(0,7)); });
+const sortedMonths = [...allMonths].sort();
+
+// Global date range system
+function getGlobalDateRange() {
+  const today = new Date();
+  const y = today.getFullYear(), m = today.getMonth(), d = today.getDate();
+  let from, to;
+  switch (gPreset) {
+    case 'month': from = new Date(y, m, 1); to = today; break;
+    case 'lastMonth': from = new Date(y, m-1, 1); to = new Date(y, m, 0); break;
+    case '3mo': from = new Date(y, m-3, 1); to = today; break;
+    case '6mo': from = new Date(y, m-6, 1); to = today; break;
+    case 'ytd': from = new Date(y, 0, 1); to = today; break;
+    case 'year': from = new Date(y-1, m, d); to = today; break;
+    case 'all': from = new Date(2020, 0, 1); to = new Date(2030, 11, 31); break;
+    case 'custom': {
+      const fv = document.getElementById('globalDateFrom').value;
+      const tv = document.getElementById('globalDateTo').value;
+      from = fv ? new Date(fv) : new Date(2020,0,1);
+      to = tv ? new Date(tv) : today;
+      break;
+    }
+    default: from = new Date(2020, 0, 1); to = new Date(2030, 11, 31);
+  }
+  return { from: from.toISOString().slice(0,10), to: to.toISOString().slice(0,10) };
+}
+
+function getGlobalPeriodLabel() {
+  const labels = { month:'This Month', lastMonth:'Last Month', '3mo':'Last 3 Months',
+    '6mo':'Last 6 Months', ytd:'Year to Date', year:'Last 12 Months', all:'All Time', custom:'Custom Range' };
+  if (gPreset === 'custom') {
+    const f = document.getElementById('globalDateFrom').value;
+    const t = document.getElementById('globalDateTo').value;
+    if (f && t) return `${f} to ${t}`;
+  }
+  return labels[gPreset] || 'All Time';
+}
+
+function setGlobalPreset(preset, btn) {
+  gPreset = preset;
+  document.querySelectorAll('#globalDatePresets .merch-preset').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('globalCustomRange').style.display = preset === 'custom' ? 'flex' : 'none';
+  // Update gMonth for backward compat
+  if (preset === 'month') {
+    const now = new Date();
+    gMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  } else if (preset === 'lastMonth') {
+    const now = new Date();
+    const lm = new Date(now.getFullYear(), now.getMonth()-1, 1);
+    gMonth = lm.getFullYear() + '-' + String(lm.getMonth()+1).padStart(2,'0');
+  } else {
+    gMonth = 'all';
+  }
+  if (preset !== 'custom') refreshAll();
+}
+
+// Populate category filter for txn tab (all non-deleted categories)
+const catSel = document.getElementById('txnCatFilter');
+const deletedCatsInit = getDeletedCats();
+CATS.map((c,i) => ({name:c, idx:i}))
+  .filter(o => !deletedCatsInit.includes(o.idx))
+  .sort((a,b) => a.name.localeCompare(b.name)).forEach(o => {
+  const opt = document.createElement('option');
+  opt.value = o.idx;
+  opt.textContent = o.name;
+  catSel.appendChild(opt);
+});
+
+// Filter helpers
+function filterSpending(month, source) {
+  const { from, to } = getGlobalDateRange();
+  return spending.filter(t => {
+    if (t.date < from || t.date > to) return false;
+    // Allow explicit month override for prev-month comparisons
+    if (month && month !== 'all' && month.length === 7 && !t.date.startsWith(month)) return false;
+    if (source && source !== 'all' && t.source !== parseInt(source)) return false;
+    return true;
+  });
+}
+// Filter spending by explicit date range (ignores global preset)
+function filterSpendingRange(from, to, source) {
+  return spending.filter(t => {
+    if (t.date < from || t.date > to) return false;
+    if (source && source !== 'all' && t.source !== parseInt(source)) return false;
+    return true;
+  });
+}
+
+function getMonthStr(d) { return d.substring(0,7); }
+function getWeekStr(d) {
+  const dt = new Date(d);
+  const day = dt.getDay();
+  const diff = dt.getDate() - day + (day === 0 ? -6 : 1);
+  const mon = new Date(dt.setDate(diff));
+  return mon.toISOString().substring(0,10);
+}
+
+function fmt(n) {
+  if (n === undefined || n === null) return '$0';
+  return '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
+function fmtD(n) {
+  return '$' + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function pct(n) { return (n*100).toFixed(1)+'%'; }
+function pctChange(cur,prev) {
+  if (!prev) return {val:0,str:'N/A',cls:''};
+  const ch = ((cur-prev)/prev);
+  return {val:ch, str:(ch>0?'+':'')+pct(ch), cls:ch>0?'up':'down'};
+}
+
+function srcBadge(idx) {
+  const name = SRCS[idx] || 'Unknown';
+  const cls = name === 'FCB' ? 'src-fcb' : name === 'Chase' ? 'src-chase' : 'src-coinbase';
+  return `<span class="badge ${cls}">${name}</span>`;
+}
+
+// Chart defaults
+Chart.defaults.color = '#a09890';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+Chart.defaults.font.family = 'Inter';
+Chart.defaults.font.size = 12;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
+Chart.defaults.plugins.legend.labels.padding = 16;
+Chart.defaults.plugins.tooltip.backgroundColor = '#1e1e1e';
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(255,255,255,0.1)';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.titleFont = {weight:'500'};
+Chart.defaults.elements.point.radius = 3;
+Chart.defaults.elements.point.hoverRadius = 5;
+Chart.defaults.elements.line.tension = 0.35;
+Chart.defaults.elements.line.borderWidth = 2;
+Chart.defaults.elements.bar.borderRadius = 4;
+Chart.defaults.animation.duration = 600;
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+function updateThemeCharts() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  Chart.defaults.color = isDark ? '#a09890' : '#777169';
+  Chart.defaults.borderColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  Chart.defaults.plugins.tooltip.backgroundColor = isDark ? '#1e1e1e' : '#ffffff';
+  Chart.defaults.plugins.tooltip.borderColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+}
+
+// Theme toggle
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.querySelector('.theme-toggle').innerHTML = isDark ? '&#9790; Dark' : '&#9788; Light';
+  updateThemeCharts();
+  refreshAll();
+}
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    refreshTab(btn.dataset.tab);
+  });
+});
+
+// Global filter changes
+document.getElementById('sourceFilter').addEventListener('change', (e) => { gSource = e.target.value; refreshAll(); });
+
+// Modal
+function openModal(html) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// Budgets from localStorage
+function getBudgets() {
+  const stored = localStorage.getItem('finDashBudgets');
+  if (stored) return JSON.parse(stored);
+  const defaults = {};
+  CATS.forEach((c,i) => { defaults[i] = 0; });
+  return defaults;
+}
+function saveBudgets(b) { localStorage.setItem('finDashBudgets', JSON.stringify(b)); }
+
+function refreshAll() {
+  const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+  refreshTab(activeTab);
+}
+
+function refreshTab(tab) {
+  switch(tab) {
+    case 'overview': renderOverview(); break;
+    case 'categories': renderCategories(); break;
+    case 'merchants': renderMerchants(); break;
+    case 'transactions': renderTransactions(); break;
+    case 'cashflow': renderCashFlow(); break;
+    case 'insights': renderInsights(); break;
+  }
+}
+
+
+// ========== OVERVIEW TAB ==========
+function renderOverview() {
+  const { from: gFrom, to: gTo } = getGlobalDateRange();
+  const txns = filterSpending('all', gSource);
+
+  const totalSpend = txns.reduce((s,t)=>s+t.amount,0);
+
+  // Avg daily — cap to today if range extends into the future
+  const today = new Date();
+  const effectiveEnd = new Date(gTo) > today ? today : new Date(gTo);
+  let daysInPeriod = Math.max(1, Math.round((effectiveEnd - new Date(gFrom)) / 86400000) + 1);
+  const avgDaily = totalSpend / daysInPeriod;
+
+  // Category totals
+  const catTotals = {};
+  txns.forEach(t => { catTotals[t.category] = (catTotals[t.category]||0) + t.amount; });
+
+  // Income — FCB only (credits into checking), plus refunds from Chase/Coinbase
+  const fcbSourceIdx = SRCS.indexOf('FCB');
+  const periodIncome = income.filter(t => {
+    if (t.date < gFrom || t.date > gTo) return false;
+    return t.source === fcbSourceIdx;
+  }).reduce((s,t) => s+t.amount, 0);
+  const netFlow = periodIncome - totalSpend;
+
+  // Projected: if within a month, extrapolate to end of month
+  const rangeStart = new Date(gFrom);
+  const rangeEnd = new Date(gTo);
+  const rangeDays = Math.max(1, Math.round((rangeEnd - rangeStart) / 86400000) + 1);
+  const dailyBurn = totalSpend / rangeDays;
+  const dailyEarn = periodIncome / rangeDays;
+  const projectedMonthly = (dailyEarn - dailyBurn) * 30;
+
+  document.getElementById('kpiCards').innerHTML = `
+    <div class="card">
+      <div class="card-title">Total Spend</div>
+      <div class="card-value">${fmt(totalSpend)}</div>
+      <div class="card-sub">${txns.length} transactions</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Avg Daily Spend</div>
+      <div class="card-value">${fmt(avgDaily)}</div>
+      <div class="card-sub">${daysInPeriod} days</div>
+    </div>
+    <div class="card" style="border-left:2px solid ${netFlow >= 0 ? 'var(--green)' : 'var(--red)'}">
+      <div class="card-title">Income vs Spend</div>
+      <div class="card-value" style="color:${netFlow>=0?'var(--green)':'var(--red)'}">${netFlow>=0?'+':''}${fmt(netFlow)}</div>
+      <div class="card-sub">Income: ${fmt(periodIncome)} | Spend: ${fmt(totalSpend)}</div>
+      <div class="card-sub" style="font-size:10px;color:var(--text-dim)">30-day pace: <span style="color:${projectedMonthly>=0?'var(--green)':'var(--red)'}"> ${projectedMonthly>=0?'+':''}${fmt(projectedMonthly)}/mo</span></div>
+    </div>
+  `;
+
+  // Compute prev period for alerts comparison
+  const rangeDaysForPrev = Math.round((new Date(gTo) - new Date(gFrom)) / 86400000) + 1;
+  const prevFrom = new Date(new Date(gFrom).getTime() - rangeDaysForPrev * 86400000).toISOString().slice(0,10);
+  const prevTo = new Date(new Date(gFrom).getTime() - 86400000).toISOString().slice(0,10);
+  const prevTxns = filterSpendingRange(prevFrom, prevTo, gSource);
+
+  // Monthly trend chart
+  renderMonthlyTrend();
+  renderCategoryDonut(txns, catTotals);
+  renderTopMerchants(txns);
+  renderAlerts(txns, catTotals, prevTxns);
+}
+
+function getPrevMonth(ym) {
+  const [y,m] = ym.split('-').map(Number);
+  const pm = m === 1 ? 12 : m-1;
+  const py = m === 1 ? y-1 : y;
+  return py+'-'+String(pm).padStart(2,'0');
+}
+
+function renderMonthlyTrend() {
+  const allTxns = filterSpending('all', gSource);
+  const byMonth = {};
+  allTxns.forEach(t => {
+    const m = getMonthStr(t.date);
+    byMonth[m] = (byMonth[m]||0) + t.amount;
+  });
+  const labels = Object.keys(byMonth).sort();
+  const data = labels.map(l => byMonth[l]);
+
+  destroyChart('monthlyTrend');
+  charts.monthlyTrend = new Chart(document.getElementById('chartMonthlyTrend'), {
+    type: 'line',
+    data: {
+      labels: labels.map(l => {
+        const [y,m] = l.split('-');
+        return new Date(y,m-1).toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+      }),
+      datasets: [{
+        label: 'Spending',
+        data,
+        borderColor: '#60a5fa',
+        backgroundColor: 'rgba(96,165,250,0.08)',
+        fill: true,
+        pointBackgroundColor: '#60a5fa'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.y) } }
+      },
+      scales: {
+        y: { ticks: { callback: v => '$'+v.toLocaleString() }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        x: { grid: { display: false } }
+      },
+      onClick: (e, els) => {
+        if (els.length) {
+          const idx = els[0].index;
+          const m = Object.keys(byMonth).sort()[idx];
+          // Set custom range to that month
+          const [cy,cm] = m.split('-');
+          const lastDay = new Date(cy, cm, 0).getDate();
+          document.getElementById('globalDateFrom').value = m + '-01';
+          document.getElementById('globalDateTo').value = m + '-' + String(lastDay).padStart(2,'0');
+          setGlobalPreset('custom', document.querySelector('[data-gpreset="custom"]'));
+          document.getElementById('globalCustomRange').style.display = 'flex';
+          refreshAll();
+        }
+      }
+    }
+  });
+}
+
+function renderCategoryDonut(txns, catTotals) {
+  const sorted = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+
+  const labels = sorted.map(([c])=>CATS[c]);
+  const data = sorted.map(([,a])=>a);
+  const colors = sorted.map(([c])=>catColor(parseInt(c)));
+
+  destroyChart('catDonut');
+  charts.catDonut = new Chart(document.getElementById('chartCategoryDonut'), {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{ data, backgroundColor: colors, borderWidth: 0, hoverBorderWidth: 2, hoverBorderColor: '#fff' }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 11 }, padding: 8 } },
+        tooltip: { callbacks: { label: ctx => ctx.label + ': ' + fmt(ctx.parsed) } }
+      },
+      onClick: (e, els) => {
+        if (els.length) {
+          const catName = labels[els[0].index];
+          const catIdx = CATS.indexOf(catName);
+          if (catIdx >= 0) {
+            gCatFilter = catIdx;
+            // Switch to categories tab
+            document.querySelectorAll('.tab-btn').forEach(b => {
+              b.classList.toggle('active', b.dataset.tab === 'categories');
+            });
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-categories').classList.add('active');
+            renderCategories();
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderTopMerchants(txns) {
+  const byMerch = {};
+  txns.forEach(t => {
+    if (!byMerch[t.merchant]) byMerch[t.merchant] = { total: 0, count: 0 };
+    byMerch[t.merchant].total += t.amount;
+    byMerch[t.merchant].count++;
+  });
+  const sorted = Object.entries(byMerch).sort((a,b)=>b[1].total-a[1].total).slice(0,8);
+  const total = txns.reduce((s,t)=>s+t.amount,0);
+
+  let html = '<table><thead><tr><th>Merchant</th><th style="text-align:right">Amount</th><th style="text-align:right">Txns</th><th>Share</th></tr></thead><tbody>';
+  sorted.forEach(([mi, d]) => {
+    const pctW = total ? (d.total/total*100) : 0;
+    html += `<tr style="cursor:pointer" onclick="crossFilterMerchant(${mi})">
+      <td style="font-weight:500">${MERCH[mi]}</td>
+      <td style="text-align:right">${fmtD(d.total)}</td>
+      <td style="text-align:right">${d.count}</td>
+      <td><div class="progress-bar" style="width:100px"><div class="progress-fill" style="width:${pctW}%;background:var(--blue)"></div></div></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('topMerchants').innerHTML = html;
+}
+
+function renderAlerts(txns, catTotals, prevTxns) {
+  const alerts = [];
+  const budgets = getBudgets();
+
+  // Budget alerts
+  Object.entries(catTotals).forEach(([ci, amt]) => {
+    const b = budgets[ci];
+    if (b && b > 0 && amt > b) {
+      alerts.push({
+        type: 'red',
+        icon: '!',
+        text: `<strong>${CATS[ci]}</strong> is ${pct((amt-b)/b)} over budget (${fmt(amt)} vs ${fmt(b)})`
+      });
+    }
+  });
+
+  // Category spike alerts — compare to prior month with severity levels (show first, higher priority)
+  if (prevTxns.length) {
+    const prevCats = {};
+    prevTxns.forEach(t => { prevCats[t.category] = (prevCats[t.category]||0) + t.amount; });
+    const spikes = [];
+    Object.entries(catTotals).forEach(([ci, amt]) => {
+      const prev = prevCats[ci] || 0;
+      if (prev > 0 && amt > prev && amt > 50) {
+        const pctInc = (amt - prev) / prev;
+        const dollarInc = amt - prev;
+        spikes.push({ ci, amt, prev, pctInc, dollarInc });
+      }
+    });
+    // Sort by dollar increase descending
+    spikes.sort((a,b) => b.dollarInc - a.dollarInc);
+    spikes.forEach(s => {
+      if (s.pctInc >= 1.0) {
+        // Doubled or more — red alert
+        alerts.push({
+          type: 'red', icon: '&#9650;&#9650;',
+          text: `<strong>${CATS[s.ci]}</strong> surged ${pct(s.pctInc)} (+${fmtD(s.dollarInc)}) vs last month — ${fmtD(s.amt)} vs ${fmtD(s.prev)}`
+        });
+      } else if (s.pctInc >= 0.3 && s.dollarInc > 100) {
+        // Up 30%+ and > $100 — amber alert
+        alerts.push({
+          type: 'amber', icon: '&#9650;',
+          text: `<strong>${CATS[s.ci]}</strong> up ${pct(s.pctInc)} (+${fmtD(s.dollarInc)}) — ${fmtD(s.amt)} vs ${fmtD(s.prev)} last month`
+        });
+      }
+    });
+    // Also flag categories that dropped significantly
+    Object.entries(prevCats).forEach(([ci, prev]) => {
+      const amt = catTotals[ci] || 0;
+      if (prev > 200 && amt < prev * 0.4) {
+        alerts.push({
+          type: 'blue', icon: '&#9660;',
+          text: `<strong>${CATS[ci]}</strong> dropped ${pct((prev-amt)/prev)} — ${fmtD(amt)} vs ${fmtD(prev)} last month`
+        });
+      }
+    });
+  }
+
+  // Large transactions (after spikes, fill remaining slots)
+  const avg = txns.length ? txns.reduce((s,t)=>s+t.amount,0)/txns.length : 0;
+  txns.filter(t => t.amount > avg * 4 && t.amount > 100)
+    .sort((a,b) => b.amount - a.amount)
+    .slice(0, 4)
+    .forEach(t => {
+      alerts.push({
+        type: 'amber', icon: '&#9888;',
+        text: `Unusually large: <strong>${fmtD(t.amount)}</strong> at ${MERCH[t.merchant]} on ${t.date}`
+      });
+    });
+
+  if (alerts.length === 0) {
+    alerts.push({ type: 'blue', icon: '&#10003;', text: 'No alerts this month. Looking good!' });
+  }
+
+  document.getElementById('alertsPanel').innerHTML = alerts.slice(0,8).map(a =>
+    `<div class="alert-item alert-${a.type}"><span class="alert-icon">${a.icon}</span><span>${a.text}</span></div>`
+  ).join('');
+}
+
+// ========== CATEGORIES TAB ==========
+function renderCategories() {
+  const txns = filterSpending(gMonth, gSource);
+  const prevMonth = gMonth !== 'all' ? getPrevMonth(gMonth) : null;
+  const prevTxns = prevMonth ? filterSpending(prevMonth, gSource) : [];
+
+  const catTotals = {};
+  const catCounts = {};
+  txns.forEach(t => {
+    catTotals[t.category] = (catTotals[t.category]||0) + t.amount;
+    catCounts[t.category] = (catCounts[t.category]||0) + 1;
+  });
+
+  const prevCats = {};
+  prevTxns.forEach(t => { prevCats[t.category] = (prevCats[t.category]||0) + t.amount; });
+
+  const totalSpend = Object.values(catTotals).reduce((s,v)=>s+v,0);
+  const sorted = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+
+  // Category table
+  let tbl = `<table><thead><tr><th>Category</th><th style="text-align:right">Amount</th><th style="text-align:right">%</th><th style="text-align:right">Txns</th><th style="text-align:right">MoM</th></tr></thead><tbody>`;
+  sorted.forEach(([ci, amt]) => {
+    const prev = prevCats[ci] || 0;
+    const ch = pctChange(amt, prev);
+    const pctTotal = totalSpend ? (amt/totalSpend) : 0;
+    tbl += `<tr style="cursor:pointer" data-catidx="${ci}" onclick="showCatDetail(${ci})">
+      <td><span class="cat-dot" style="background:${catColor(parseInt(ci))}"></span>${CATS[ci]}</td>
+      <td style="text-align:right;font-weight:500">${fmtD(amt)}</td>
+      <td style="text-align:right">${pct(pctTotal)}</td>
+      <td style="text-align:right">${catCounts[ci]||0}</td>
+      <td style="text-align:right"><span class="${ch.cls}">${ch.str}</span></td>
+    </tr>`;
+  });
+  tbl += '</tbody></table>';
+  document.getElementById('catTableWrap').innerHTML = tbl;
+
+  // Category trend chart
+  renderCatHeatmap();
+
+  // Budget table
+}
+
+function showCatDetail(ci) {
+  const panel = document.getElementById('catDetailPanel');
+  panel.style.display = 'block';
+  document.getElementById('catDetailName').innerHTML = `<span class="cat-dot" style="background:${catColor(ci)}"></span> ${CATS[ci]}`;
+  // Highlight row
+  document.querySelectorAll('#catTableWrap tr').forEach(r => r.classList.remove('active-row'));
+  document.querySelectorAll('#catTableWrap tr[data-catidx="'+ci+'"]').forEach(r => r.classList.add('active-row'));
+  renderCatExpandContent(ci);
+  document.getElementById('catDetailContent').innerHTML = document.getElementById('catDetailContent')?.innerHTML || '';
+  // Move content into the side panel
+  const expandEl = document.querySelector('.expand-content');
+  // Actually renderCatExpandContent writes to catExpandContent-ci, but we changed the target
+  panel.scrollTo({top: 0});
+}
+
+function closeCatDetail() {
+  document.getElementById('catDetailPanel').style.display = 'none';
+  document.querySelectorAll('#catTableWrap tr').forEach(r => r.classList.remove('active-row'));
+}
+
+function renderCatExpandContent(ci) {
+  const txns = filterSpending(gMonth, gSource).filter(t => t.category === ci);
+
+  // Merchant summary
+  const byMerch = {};
+  txns.forEach(t => {
+    if (!byMerch[t.merchant]) byMerch[t.merchant] = {total:0,count:0};
+    byMerch[t.merchant].total += t.amount;
+    byMerch[t.merchant].count++;
+  });
+  const sortedMerch = Object.entries(byMerch).sort((a,b)=>b[1].total-a[1].total);
+
+  // Bulk action bar for merchants
+  let html = `<div class="bulk-bar" id="bulkMerchBar-${ci}" style="display:none">
+    <span id="bulkMerchCount-${ci}">0 selected</span>
+    <span style="color:var(--text-muted)">Move to:</span>
+    <select id="bulkMerchCat-${ci}">${catOptionsHtml(ci)}</select>
+    <button class="btn btn-primary" onclick="bulkMoveMerch(${ci})">Move All Selected</button>
+    <button class="btn" onclick="clearBulkMerch(${ci})">Clear</button>
+  </div>`;
+
+  html += `<div style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px">Merchants (${sortedMerch.length})
+    <label style="float:right;font-weight:400;text-transform:none;cursor:pointer;font-size:11px"><input type="checkbox" class="bulk-check" onchange="toggleAllMerchChecks(${ci},this.checked)" style="margin-right:4px">Select all</label></div>`;
+  html += '<table><thead><tr><th style="width:30px"></th><th>Merchant</th><th style="text-align:right">Amount</th><th style="text-align:right">Txns</th><th>Reassign All</th></tr></thead><tbody>';
+  sortedMerch.forEach(([mi, d]) => {
+    html += `<tr>
+      <td><input type="checkbox" class="bulk-check merch-check-${ci}" value="${mi}" onchange="updateBulkMerchBar(${ci})"></td>
+      <td>${MERCH[mi]}</td>
+      <td style="text-align:right">${fmtD(d.total)}</td>
+      <td style="text-align:right">${d.count}</td>
+      <td>${merchCatSelectInCat(parseInt(mi), ci)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+
+  // Individual transactions with bulk select
+  const sortedTxns = [...txns].sort((a,b) => b.date.localeCompare(a.date));
+  const txnOv = getTxnCatOverrides();
+
+  html += `<div class="bulk-bar" id="bulkTxnBar-${ci}" style="display:none;margin-top:14px">
+    <span id="bulkTxnCount-${ci}">0 selected</span>
+    <span style="color:var(--text-muted)">Move to:</span>
+    <select id="bulkTxnCat-${ci}">${catOptionsHtml(ci)}</select>
+    <button class="btn btn-primary" onclick="bulkMoveTxns(${ci})">Move All Selected</button>
+    <button class="btn" onclick="clearBulkTxns(${ci})">Clear</button>
+  </div>`;
+
+  html += `<div style="font-size:12px;font-weight:500;color:var(--text-muted);margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.4px">Transactions (${sortedTxns.length})
+    <label style="float:right;font-weight:400;text-transform:none;cursor:pointer;font-size:11px"><input type="checkbox" class="bulk-check" onchange="toggleAllTxnChecks(${ci},this.checked)" style="margin-right:4px">Select all</label></div>`;
+  html += '<div style="max-height:350px;overflow-y:auto"><table><thead><tr><th style="width:30px"></th><th>Date</th><th>Merchant</th><th style="text-align:right">Amount</th><th>Category</th><th>Source</th></tr></thead><tbody>';
+  sortedTxns.slice(0, 100).forEach((t, idx) => {
+    const tk = txnKey(t);
+    const isOv = txnOv[tk] !== undefined;
+    html += `<tr>
+      <td><input type="checkbox" class="bulk-check txn-check-${ci}" data-date="${t.date}" data-merch="${t.merchant}" data-amt="${t.amount}" onchange="updateBulkTxnBar(${ci})"></td>
+      <td style="font-size:12px">${t.date}</td>
+      <td style="font-size:12px">${MERCH[t.merchant]}</td>
+      <td style="text-align:right;font-weight:500;font-size:12px">${fmtD(t.amount)}</td>
+      <td><select class="cat-select${isOv ? ' overridden' : ''}" style="font-size:11px"
+        onchange="recategorizeTxnFromCat(${ci},'${t.date}',${t.merchant},${t.amount},parseInt(this.value))">
+        ${catOptionsHtml(t.category)}
+        ${isOv ? '<option value="-1">\u21a9 Reset</option>' : ''}
+      </select></td>
+      <td>${srcBadge(t.source)}</td>
+    </tr>`;
+  });
+  if (sortedTxns.length > 100) html += `<tr><td colspan="6" style="font-size:11px;color:var(--text-muted);padding:8px">Showing 100 of ${sortedTxns.length}</td></tr>`;
+  html += '</tbody></table></div>';
+  document.getElementById('catDetailContent').innerHTML = html;
+}
+
+// ===== BULK SELECTION HELPERS =====
+function toggleAllMerchChecks(ci, checked) {
+  document.querySelectorAll('.merch-check-'+ci).forEach(cb => cb.checked = checked);
+  updateBulkMerchBar(ci);
+}
+function toggleAllTxnChecks(ci, checked) {
+  document.querySelectorAll('.txn-check-'+ci).forEach(cb => cb.checked = checked);
+  updateBulkTxnBar(ci);
+}
+
+function updateBulkMerchBar(ci) {
+  const checked = document.querySelectorAll('.merch-check-'+ci+':checked');
+  const bar = document.getElementById('bulkMerchBar-'+ci);
+  bar.style.display = checked.length > 0 ? 'flex' : 'none';
+  document.getElementById('bulkMerchCount-'+ci).textContent = checked.length + ' merchant' + (checked.length===1?'':'s') + ' selected';
+}
+function updateBulkTxnBar(ci) {
+  const checked = document.querySelectorAll('.txn-check-'+ci+':checked');
+  const bar = document.getElementById('bulkTxnBar-'+ci);
+  bar.style.display = checked.length > 0 ? 'flex' : 'none';
+  document.getElementById('bulkTxnCount-'+ci).textContent = checked.length + ' transaction' + (checked.length===1?'':'s') + ' selected';
+}
+
+function clearBulkMerch(ci) {
+  document.querySelectorAll('.merch-check-'+ci).forEach(cb => cb.checked = false);
+  updateBulkMerchBar(ci);
+}
+function clearBulkTxns(ci) {
+  document.querySelectorAll('.txn-check-'+ci).forEach(cb => cb.checked = false);
+  updateBulkTxnBar(ci);
+}
+
+function bulkMoveMerch(ci) {
+  const newCat = parseInt(document.getElementById('bulkMerchCat-'+ci).value);
+  const checked = document.querySelectorAll('.merch-check-'+ci+':checked');
+  const ov = getCatOverrides();
+  checked.forEach(cb => { ov[cb.value] = newCat; });
+  saveCatOverrides(ov);
+  RAW.s.forEach((t,i) => { spending[i].category = t[3]; });
+  applyCatOverrides();
+  pruneEmptyCustomCats();
+  renderCategories();
+  showCatDetail(ci);
+}
+
+function bulkMoveTxns(ci) {
+  const newCat = parseInt(document.getElementById('bulkTxnCat-'+ci).value);
+  const checked = document.querySelectorAll('.txn-check-'+ci+':checked');
+  const ov = getTxnCatOverrides();
+  checked.forEach(cb => {
+    const tk = cb.dataset.date + '|' + cb.dataset.merch + '|' + cb.dataset.amt;
+    ov[tk] = newCat;
+  });
+  saveTxnCatOverrides(ov);
+  RAW.s.forEach((t,i) => { spending[i].category = t[3]; });
+  applyCatOverrides();
+  pruneEmptyCustomCats();
+  renderCategories();
+  showCatDetail(ci);
+}
+
+function merchCatSelectInCat(merchantIdx, currentCatIdx) {
+  const ov = getCatOverrides();
+  const isOverridden = ov[merchantIdx] !== undefined;
+  let html = `<select class="cat-select${isOverridden ? ' overridden' : ''}" style="font-size:11px"
+    onchange="recategorizeMerchFromCat(${currentCatIdx},${merchantIdx},parseInt(this.value))">`;
+  html += catOptionsHtml(currentCatIdx);
+  if (isOverridden) html += `<option value="-1">\u21a9 Reset</option>`;
+  html += '</select>';
+  return html;
+}
+
+function recategorizeMerchFromCat(origCatIdx, merchantIdx, newCatIdx) {
+  const ov = getCatOverrides();
+  if (newCatIdx === -1) { delete ov[merchantIdx]; } else { ov[merchantIdx] = newCatIdx; }
+  saveCatOverrides(ov);
+  RAW.s.forEach((t,i) => { spending[i].category = t[3]; });
+  applyCatOverrides();
+  pruneEmptyCustomCats();
+  renderCategories();
+  showCatDetail(origCatIdx);
+}
+
+function recategorizeTxnFromCat(origCatIdx, date, merchant, amount, newCatIdx) {
+  const tk = date + '|' + merchant + '|' + amount;
+  const ov = getTxnCatOverrides();
+  if (newCatIdx === -1) { delete ov[tk]; } else { ov[tk] = newCatIdx; }
+  saveTxnCatOverrides(ov);
+  RAW.s.forEach((t,i) => { spending[i].category = t[3]; });
+  applyCatOverrides();
+  pruneEmptyCustomCats();
+  renderCategories();
+  // Re-open the same category expand
+  showCatDetail(origCatIdx);
+}
+
+function renderCatHeatmap() {
+  const allTxns = filterSpending('all', gSource);
+  const deleted = getDeletedCats();
+
+  // Build category x month matrix
+  const catMonthData = {};
+  allTxns.forEach(t => {
+    if (deleted.includes(t.category)) return;
+    const m = getMonthStr(t.date);
+    if (!catMonthData[t.category]) catMonthData[t.category] = {};
+    catMonthData[t.category][m] = (catMonthData[t.category][m] || 0) + t.amount;
+  });
+
+  // Sort categories by total spend descending, take top 15
+  const catTotals = Object.entries(catMonthData).map(([ci, months]) => ({
+    ci: parseInt(ci), total: Object.values(months).reduce((s,v) => s+v, 0)
+  })).sort((a,b) => b.total - a.total).slice(0, 15);
+
+  // Find global max for color scaling
+  let globalMax = 0;
+  catTotals.forEach(c => {
+    sortedMonths.forEach(m => {
+      const v = catMonthData[c.ci]?.[m] || 0;
+      if (v > globalMax) globalMax = v;
+    });
+  });
+
+  // Color function: 0 = dark, max = bright
+  function heatColor(val) {
+    if (!val || val === 0) return 'rgba(255,255,255,0.02)';
+    const intensity = Math.min(val / (globalMax * 0.6), 1); // normalize, cap at 60% of max for better spread
+    // Warm palette: dark -> amber -> bright orange
+    const r = Math.round(30 + intensity * 225);
+    const g = Math.round(20 + intensity * 140);
+    const b = Math.round(10 + intensity * 30);
+    const a = 0.15 + intensity * 0.7;
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  const monthLabels = sortedMonths.map(m => {
+    const [y, mo] = m.split('-');
+    const short = new Date(y, mo-1).toLocaleDateString('en-US', {month:'narrow'});
+    const yr = y.slice(2);
+    return `${short}<span style="font-size:8px;opacity:0.5">${yr}</span>`;
+  });
+
+  const colCount = sortedMonths.length;
+  let html = `<table style="width:100%;table-layout:fixed;border-collapse:separate;border-spacing:2px;font-size:10px">`;
+  html += `<colgroup><col style="width:110px">`;
+  for (let i = 0; i < colCount; i++) html += '<col>';
+  html += '</colgroup>';
+  // Header
+  html += '<thead><tr><th style="text-align:left;padding:3px 6px;font-weight:500;color:var(--text-muted)">Category</th>';
+  monthLabels.forEach(l => {
+    html += `<th style="padding:2px 1px;font-weight:400;color:var(--text-muted);text-align:center;font-size:9px">${l}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  catTotals.forEach(c => {
+    const catName = CATS[c.ci].length > 14 ? CATS[c.ci].substring(0,13) + '…' : CATS[c.ci];
+    html += `<tr><td style="padding:3px 6px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-secondary);font-size:11px" title="${CATS[c.ci]}">
+      <span class="cat-dot" style="background:${catColor(c.ci)}"></span>${catName}</td>`;
+    sortedMonths.forEach(m => {
+      const val = catMonthData[c.ci]?.[m] || 0;
+      const bg = heatColor(val);
+      const textColor = val > globalMax * 0.3 ? '#fff' : 'var(--text-muted)';
+      const display = val > 0 ? (val >= 1000 ? (val/1000).toFixed(1)+'k' : Math.round(val)) : '';
+      html += `<td style="padding:2px 1px;text-align:center;background:${bg};color:${textColor};border-radius:3px;font-size:9px;font-weight:${val > globalMax*0.3 ? '600' : '400'};overflow:hidden;cursor:${val>0?'pointer':'default'}"
+        title="${CATS[c.ci]} — ${m}: ${fmtD(val)}"
+        ${val > 0 ? `onclick="showHeatmapDetail(${c.ci},'${m}')"` : ''}>${display}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+
+  document.getElementById('catHeatmapWrap').innerHTML = html;
+}
+
+function showHeatmapDetail(ci, month) {
+  // Get transactions for this category + month
+  const txns = spending.filter(t => t.category === ci && t.date.startsWith(month));
+  if (!txns.length) return;
+
+  txns.sort((a,b) => b.date.localeCompare(a.date) || b.amount - a.amount);
+  const total = txns.reduce((s,t) => s+t.amount, 0);
+
+  const [y, mo] = month.split('-');
+  const monthLabel = new Date(y, mo-1).toLocaleDateString('en-US', {month:'long', year:'numeric'});
+
+  // Merchant subtotals
+  const byMerch = {};
+  txns.forEach(t => {
+    if (!byMerch[t.merchant]) byMerch[t.merchant] = {total:0, count:0};
+    byMerch[t.merchant].total += t.amount;
+    byMerch[t.merchant].count++;
+  });
+  const sortedMerch = Object.entries(byMerch).sort((a,b) => b[1].total - a[1].total);
+
+  // Open side panel
+  const panel = document.getElementById('catDetailPanel');
+  panel.style.display = 'block';
+  document.getElementById('catDetailName').innerHTML =
+    `<span class="cat-dot" style="background:${catColor(ci)}"></span> ${CATS[ci]} — ${monthLabel}`;
+
+  let html = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+    <div style="background:var(--bg-base);border-radius:var(--radius-xs);padding:10px;text-align:center">
+      <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px">Total</div>
+      <div style="font-size:18px;font-weight:600">${fmtD(total)}</div>
+    </div>
+    <div style="background:var(--bg-base);border-radius:var(--radius-xs);padding:10px;text-align:center">
+      <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px">Transactions</div>
+      <div style="font-size:18px;font-weight:600">${txns.length}</div>
+    </div>
+    <div style="background:var(--bg-base);border-radius:var(--radius-xs);padding:10px;text-align:center">
+      <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);margin-bottom:2px">Merchants</div>
+      <div style="font-size:18px;font-weight:600">${sortedMerch.length}</div>
+    </div>
+  </div>`;
+
+  // Top merchants
+  html += `<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin-bottom:6px;font-weight:500">Merchants</div>`;
+  sortedMerch.forEach(([mi, d]) => {
+    const pctOfTotal = total ? (d.total / total * 100).toFixed(0) : 0;
+    const barW = total ? (d.total / sortedMerch[0][1].total * 100) : 0;
+    html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;font-size:12px">
+      <span style="min-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${MERCH[mi]}</span>
+      <div style="flex:1;height:14px;background:var(--bg-base);border-radius:2px;overflow:hidden">
+        <div style="width:${barW}%;height:100%;background:${catColor(ci)}40;border-radius:2px"></div>
+      </div>
+      <span style="font-weight:500;min-width:60px;text-align:right">${fmtD(d.total)}</span>
+      <span style="color:var(--text-dim);min-width:30px;text-align:right;font-size:10px">${d.count}x</span>
+    </div>`;
+  });
+
+  // Transaction list
+  html += `<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin:14px 0 6px;font-weight:500">Transactions</div>`;
+  html += '<div style="max-height:300px;overflow-y:auto"><table style="font-size:11px"><thead><tr><th>Date</th><th>Merchant</th><th style="text-align:right">Amount</th><th>Source</th></tr></thead><tbody>';
+  txns.slice(0, 50).forEach(t => {
+    html += `<tr>
+      <td style="font-size:11px">${t.date}</td>
+      <td style="font-size:11px">${MERCH[t.merchant]}</td>
+      <td style="text-align:right;font-weight:500">${fmtD(t.amount)}</td>
+      <td>${srcBadge(t.source)}</td>
+    </tr>`;
+  });
+  if (txns.length > 50) html += `<tr><td colspan="4" style="font-size:10px;color:var(--text-muted);padding:6px">Showing 50 of ${txns.length}</td></tr>`;
+  html += '</tbody></table></div>';
+
+  document.getElementById('catDetailContent').innerHTML = html;
+  panel.scrollTo({top: 0});
+}
+
+function renderBudgetTable(catTotals) {
+  const budgets = getBudgets();
+  const sorted = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+
+  let html = `<table><thead><tr><th>Category</th><th style="text-align:right">Actual</th><th style="text-align:right">Budget</th><th>Progress</th><th style="text-align:right">Remaining</th></tr></thead><tbody>`;
+  sorted.forEach(([ci, amt]) => {
+    const b = budgets[ci] || 0;
+    const pctUsed = b > 0 ? Math.min(1, amt/b) : 0;
+    const remaining = b > 0 ? b - amt : 0;
+    const color = pctUsed > 1 ? 'var(--red)' : pctUsed > 0.8 ? 'var(--amber)' : 'var(--green)';
+    html += `<tr>
+      <td><span class="cat-dot" style="background:${catColor(parseInt(ci))}"></span>${CATS[ci]}</td>
+      <td style="text-align:right;font-weight:500">${fmtD(amt)}</td>
+      <td style="text-align:right"><input class="budget-input" type="number" value="${b||''}" placeholder="Set..." onchange="updateBudget(${ci},this.value)"></td>
+      <td style="width:120px">${b > 0 ? `<div class="progress-bar"><div class="progress-fill" style="width:${pctUsed*100}%;background:${color}"></div></div><span style="font-size:11px;color:var(--text-muted)">${pct(pctUsed)}</span>` : '<span style="font-size:11px;color:var(--text-dim)">No budget set</span>'}</td>
+      <td style="text-align:right;color:${remaining>=0?'var(--green)':'var(--red)'}">${b > 0 ? fmtD(remaining) : '-'}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('budgetTableWrap').innerHTML = html;
+}
+
+function updateBudget(ci, val) {
+  const budgets = getBudgets();
+  budgets[ci] = parseFloat(val) || 0;
+  saveBudgets(budgets);
+}
+
+
+// ========== MERCHANTS TAB ==========
+let merchCurrentPage = 0;
+const MERCH_PAGE_SIZE = 50;
+let merchEntries = [];
+
+function filterMerchSpending() {
+  return filterSpending(gMonth, gSource);
+}
+
+function renderMerchants() {
+  const txns = filterMerchSpending();
+  const byMerch = {};
+  txns.forEach(t => {
+    if (!byMerch[t.merchant]) byMerch[t.merchant] = {total:0,count:0,cats:new Set(),dates:[]};
+    byMerch[t.merchant].total += t.amount;
+    byMerch[t.merchant].count++;
+    byMerch[t.merchant].cats.add(t.category);
+    byMerch[t.merchant].dates.push(t.date);
+  });
+
+  const searchVal = document.getElementById('merchSearch').value.toLowerCase();
+  const sortBy = document.getElementById('merchSortBy').value;
+
+  let entries = Object.entries(byMerch);
+  if (searchVal) entries = entries.filter(([mi]) => MERCH[mi].toLowerCase().includes(searchVal));
+
+  if (sortBy === 'amount') entries.sort((a,b)=>b[1].total-a[1].total);
+  else if (sortBy === 'count') entries.sort((a,b)=>b[1].count-a[1].count);
+  else entries.sort((a,b)=>MERCH[a[0]].localeCompare(MERCH[b[0]]));
+
+  // Charts - top by amount and frequency
+  const topAmt = Object.entries(byMerch).sort((a,b)=>b[1].total-a[1].total).slice(0,15);
+
+  destroyChart('merchAmt');
+  charts.merchAmt = new Chart(document.getElementById('chartMerchAmount'), {
+    type: 'bar',
+    data: {
+      labels: topAmt.map(([mi])=>MERCH[mi].substring(0,25)),
+      datasets: [{
+        data: topAmt.map(([,d])=>d.total),
+        backgroundColor: 'rgba(96,165,250,0.6)',
+        borderColor: '#60a5fa',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.x) } } },
+      scales: { x: { ticks: { callback: v => '$'+v.toLocaleString() }, grid: { color: 'rgba(255,255,255,0.04)' } }, y: { grid: { display: false } } }
+    }
+  });
+
+  // Cache entries for pagination — preserve page if same result count
+  const prevCount = merchEntries.length;
+  merchEntries = entries;
+  const pageChanged = entries.length !== prevCount;
+  if (pageChanged) merchCurrentPage = 0;
+  const totalPages = Math.ceil(entries.length / MERCH_PAGE_SIZE);
+  if (merchCurrentPage >= totalPages) merchCurrentPage = Math.max(0, totalPages - 1);
+  renderMerchPage(pageChanged);
+
+  // Period summary in page count
+  const totalAmt = txns.reduce((s,t) => s + t.amount, 0);
+}
+
+function renderMerchPage(scrollToTop) {
+  const start = merchCurrentPage * MERCH_PAGE_SIZE;
+  const page = merchEntries.slice(start, start + MERCH_PAGE_SIZE);
+  const totalPages = Math.ceil(merchEntries.length / MERCH_PAGE_SIZE);
+
+  let tbl = `<table><thead><tr><th>Merchant</th><th style="text-align:right">Amount</th><th style="text-align:right">Txns</th><th>Category</th><th>Recurring</th></tr></thead><tbody>`;
+  page.forEach(([mi, d]) => {
+    const isRecurring = detectRecurring(d.dates, d.count);
+    const primaryCat = [...d.cats][0];
+    tbl += `<tr style="cursor:pointer" data-mi="${mi}">
+      <td style="font-weight:500" onclick="showMerchDetail(${mi})">${MERCH[mi]}</td>
+      <td style="text-align:right" onclick="showMerchDetail(${mi})">${fmtD(d.total)}</td>
+      <td style="text-align:right" onclick="showMerchDetail(${mi})">${d.count}</td>
+      <td>${merchCatSelect(parseInt(mi), primaryCat)}</td>
+      <td>${isRecurring ? '<span class="badge badge-purple">Recurring</span>' : ''}</td>
+    </tr>`;
+  });
+  if (page.length === 0) tbl += '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">No merchants found</td></tr>';
+  tbl += '</tbody></table>';
+  const wrap = document.getElementById('merchTableWrap');
+  const prevScroll = wrap.scrollTop;
+  wrap.innerHTML = tbl;
+  if (!scrollToTop) requestAnimationFrame(() => { wrap.scrollTop = prevScroll; });
+
+  document.getElementById('merchPageCount').textContent = `${merchEntries.length} merchants`;
+  document.getElementById('merchPageInfo').textContent = totalPages > 0 ? `${merchCurrentPage+1} / ${totalPages}` : '0 / 0';
+  document.getElementById('merchPrev').disabled = merchCurrentPage <= 0;
+  document.getElementById('merchNext').disabled = merchCurrentPage >= totalPages - 1;
+}
+
+function merchPage(dir) {
+  const totalPages = Math.ceil(merchEntries.length / MERCH_PAGE_SIZE);
+  merchCurrentPage = Math.max(0, Math.min(totalPages - 1, merchCurrentPage + dir));
+  renderMerchPage(true);
+  closeMerchDetail();
+}
+
+function detectRecurring(dates, count) {
+  if (count < 2) return false;
+  const sorted = [...dates].sort();
+  if (sorted.length < 2) return false;
+  const months = new Set(sorted.map(d => d.substring(0,7)));
+  return months.size >= 2 && count >= months.size * 0.7;
+}
+
+function showMerchDetail(mi) {
+  const panel = document.getElementById('merchDetailPanel');
+  panel.style.display = 'block';
+  // Header with name + category selector
+  const primaryCat = spending.find(t => t.merchant === mi)?.category || 0;
+  document.getElementById('merchDetailName').innerHTML = MERCH[mi] +
+    `<span style="margin-left:12px;font-size:12px;font-weight:400;color:var(--text-muted)">Category:</span> ` +
+    merchCatSelect(mi, primaryCat);
+
+  // Highlight active row
+  document.querySelectorAll('#merchTableWrap tr').forEach(r => r.classList.remove('active-row'));
+  const rows = document.querySelectorAll('#merchTableWrap tr[data-mi]');
+  rows.forEach(r => { if (r.dataset.mi == mi) r.classList.add('active-row'); });
+
+  // Use the merchant date filter, not global
+  const txns = filterMerchSpending().filter(t => t.merchant === mi);
+  txns.sort((a,b) => b.date.localeCompare(a.date));
+
+  const total = txns.reduce((s,t) => s + t.amount, 0);
+  const avg = txns.length ? total / txns.length : 0;
+  const months = new Set(txns.map(t => t.date.substring(0,7)));
+  const avgPerMonth = months.size ? total / months.size : 0;
+
+  // KPI cards
+  const kpiStyle = 'background:var(--bg-elevated);border-radius:var(--radius-xs);padding:10px;text-align:center';
+  const kpiLabel = 'font-size:10px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin-bottom:2px';
+  const kpiVal = 'font-size:18px;font-weight:600';
+  document.getElementById('merchDetailKpis').innerHTML = `
+    <div style="${kpiStyle}"><div style="${kpiLabel}">Total</div><div style="${kpiVal}">${fmtD(total)}</div></div>
+    <div style="${kpiStyle}"><div style="${kpiLabel}">Transactions</div><div style="${kpiVal}">${txns.length}</div></div>
+    <div style="${kpiStyle}"><div style="${kpiLabel}">Avg / Month</div><div style="${kpiVal}">${fmtD(avgPerMonth)}</div></div>
+  `;
+
+  const txnOv = getTxnCatOverrides();
+  let html = '<div class="tbl-wrap"><table><thead><tr><th>Date</th><th style="text-align:right">Amount</th><th>Category</th><th>Source</th></tr></thead><tbody>';
+  txns.slice(0,50).forEach(t => {
+    const tk = txnKey(t);
+    const isTxnOverridden = txnOv[tk] !== undefined;
+    html += `<tr>
+      <td style="font-size:12px">${t.date}</td>
+      <td style="text-align:right;font-weight:500;font-size:13px">${fmtD(t.amount)}</td>
+      <td><select class="cat-select${isTxnOverridden ? ' overridden' : ''}" style="font-size:11px"
+        onchange="recategorizeTxn('${t.date}',${t.merchant},${t.amount},parseInt(this.value))">
+        ${catOptionsHtml(t.category)}
+        ${isTxnOverridden ? '<option value="-1">\u21a9 Reset</option>' : ''}
+      </select></td>
+      <td>${srcBadge(t.source)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  if (txns.length > 50) html += `<p style="font-size:12px;color:var(--text-muted);margin-top:8px">Showing 50 of ${txns.length}</p>`;
+  document.getElementById('merchDetailContent').innerHTML = html;
+  panel.scrollTo({ top: 0 });
+}
+
+function closeMerchDetail() {
+  document.getElementById('merchDetailPanel').style.display = 'none';
+  document.querySelectorAll('#merchTableWrap tr').forEach(r => r.classList.remove('active-row'));
+}
+
+document.getElementById('merchSearch').addEventListener('input', renderMerchants);
+document.getElementById('merchSortBy').addEventListener('change', renderMerchants);
+
+// Cross-filter: click merchant in overview -> go to merchants tab
+function crossFilterMerchant(mi) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'merchants'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-merchants').classList.add('active');
+  renderMerchants();
+  setTimeout(() => showMerchDetail(mi), 100);
+}
+
+// ========== TRANSACTIONS TAB ==========
+function renderTransactions() {
+  applyTxnFilters();
+}
+
+function applyTxnFilters() {
+  const search = document.getElementById('txnSearch').value.toLowerCase();
+  const dateFrom = document.getElementById('txnDateFrom').value;
+  const dateTo = document.getElementById('txnDateTo').value;
+  const cat = document.getElementById('txnCatFilter').value;
+  const src = document.getElementById('txnSrcFilter').value;
+  const amtMin = parseFloat(document.getElementById('txnAmtMin').value) || 0;
+  const amtMax = parseFloat(document.getElementById('txnAmtMax').value) || Infinity;
+
+  let base = spending;
+  // Apply global source filter
+  if (gSource !== 'all') base = base.filter(t => t.source === parseInt(gSource));
+
+  txnFiltered = base.filter(t => {
+    if (search && !t.desc.toLowerCase().includes(search) && !MERCH[t.merchant].toLowerCase().includes(search) && !CATS[t.category].toLowerCase().includes(search)) return false;
+    if (dateFrom && t.date < dateFrom) return false;
+    if (dateTo && t.date > dateTo) return false;
+    if (cat !== 'all' && t.category !== parseInt(cat)) return false;
+    if (src !== 'all' && t.source !== parseInt(src)) return false;
+    if (t.amount < amtMin) return false;
+    if (t.amount > amtMax) return false;
+    return true;
+  });
+
+  // Apply global month filter for default
+  if (!dateFrom && !dateTo && gMonth !== 'all') {
+    txnFiltered = txnFiltered.filter(t => t.date.startsWith(gMonth));
+  }
+
+  txnFiltered.sort((a,b) => b.date.localeCompare(a.date) || b.amount - a.amount);
+  txnCurrentPage = 0;
+  renderTxnSearchSummary(search);
+  renderTxnPage();
+}
+
+function renderTxnSearchSummary(search) {
+  const panel = document.getElementById('txnSearchSummary');
+  if (!search) { panel.style.display = 'none'; destroyChart('txnSearch'); return; }
+  panel.style.display = 'block';
+
+  const results = txnFiltered;
+  const total = results.reduce((s,t) => s + t.amount, 0);
+  const months = new Set(results.map(t => t.date.substring(0,7)));
+
+  document.getElementById('txnSearchTerm').textContent = `"${search}"`;
+  document.getElementById('txnSearchCount').textContent = results.length.toLocaleString();
+  document.getElementById('txnSearchTotal').textContent = fmtD(total);
+  document.getElementById('txnSearchAvg').textContent = results.length ? fmtD(total / results.length) : '$0';
+  document.getElementById('txnSearchMonths').textContent = months.size;
+
+  // By month chart
+  const byMonth = {};
+  results.forEach(t => { const m = t.date.substring(0,7); byMonth[m] = (byMonth[m]||0) + t.amount; });
+  const sortedMonths = Object.keys(byMonth).sort();
+  const monthLabels = sortedMonths.map(m => { const [y,mo] = m.split('-'); return new Date(y,mo-1).toLocaleDateString('en',{month:'short',year:'2-digit'}); });
+
+  destroyChart('txnSearch');
+  charts.txnSearch = new Chart(document.getElementById('chartTxnSearch'), {
+    type: 'bar',
+    data: {
+      labels: monthLabels,
+      datasets: [{
+        data: sortedMonths.map(m => byMonth[m]),
+        backgroundColor: 'rgba(96,165,250,0.5)',
+        borderColor: '#60a5fa',
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.parsed.y) } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => '$'+v.toLocaleString(), font: { size: 10 } } }
+      }
+    }
+  });
+
+  // By source breakdown
+  const bySrc = {};
+  results.forEach(t => { const s = SRCS[t.source]; bySrc[s] = (bySrc[s]||0) + t.amount; });
+  let srcHtml = '';
+  Object.entries(bySrc).sort((a,b) => b[1]-a[1]).forEach(([s, amt]) => {
+    const count = results.filter(t => SRCS[t.source]===s).length;
+    srcHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid var(--border-subtle)">
+      <span style="color:var(--text-secondary)">${s}</span>
+      <span><strong>${fmtD(amt)}</strong> <span style="color:var(--text-muted)">(${count})</span></span>
+    </div>`;
+  });
+  document.getElementById('txnSearchBySrc').innerHTML = srcHtml;
+
+  // Top merchants for this search
+  const byMerchant = {};
+  results.forEach(t => { const m = MERCH[t.merchant]; byMerchant[m] = (byMerchant[m]||0) + t.amount; });
+  let merchHtml = '';
+  Object.entries(byMerchant).sort((a,b) => b[1]-a[1]).slice(0,5).forEach(([m, amt]) => {
+    const count = results.filter(t => MERCH[t.merchant]===m).length;
+    merchHtml += `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid var(--border-subtle)">
+      <span style="color:var(--text-secondary)">${m.substring(0,25)}</span>
+      <span><strong>${fmtD(amt)}</strong> <span style="color:var(--text-muted)">(${count}x)</span></span>
+    </div>`;
+  });
+  document.getElementById('txnSearchByMerch').innerHTML = merchHtml;
+}
+
+function renderTxnPage() {
+  const start = txnCurrentPage * TXN_PAGE_SIZE;
+  const page = txnFiltered.slice(start, start + TXN_PAGE_SIZE);
+  const totalPages = Math.ceil(txnFiltered.length / TXN_PAGE_SIZE);
+  const totalAmt = txnFiltered.reduce((s,t)=>s+t.amount,0);
+
+  let tbl = '<table><thead><tr><th>Date</th><th>Merchant</th><th>Category</th><th style="text-align:right">Amount</th><th>Source</th><th>Description</th></tr></thead><tbody>';
+  page.forEach(t => {
+    tbl += `<tr>
+      <td>${t.date}</td>
+      <td style="font-weight:500;cursor:pointer" onclick="crossFilterMerchant(${t.merchant})">${MERCH[t.merchant]}</td>
+      <td><span class="cat-dot" style="background:${catColor(t.category)}"></span>${catSelectHtml(t.merchant, t.category)}</td>
+      <td style="text-align:right;font-weight:500">${fmtD(t.amount)}</td>
+      <td>${srcBadge(t.source)}</td>
+      <td style="font-size:11px;color:var(--text-muted);max-width:300px;overflow:hidden;text-overflow:ellipsis">${t.desc}</td>
+    </tr>`;
+  });
+  if (page.length === 0) tbl += '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No transactions found</td></tr>';
+  tbl += '</tbody></table>';
+  document.getElementById('txnTableWrap').innerHTML = tbl;
+  document.getElementById('txnCount').textContent = `${txnFiltered.length} transactions | Total: ${fmtD(totalAmt)}`;
+  document.getElementById('txnPageInfo').textContent = totalPages > 0 ? `${txnCurrentPage+1} / ${totalPages}` : '0 / 0';
+  document.getElementById('txnPrev').disabled = txnCurrentPage <= 0;
+  document.getElementById('txnNext').disabled = txnCurrentPage >= totalPages - 1;
+}
+
+function txnPage(dir) {
+  const totalPages = Math.ceil(txnFiltered.length / TXN_PAGE_SIZE);
+  txnCurrentPage = Math.max(0, Math.min(totalPages - 1, txnCurrentPage + dir));
+  renderTxnPage();
+}
+
+document.getElementById('txnSearch').addEventListener('input', () => { clearTimeout(window._txnDebounce); window._txnDebounce = setTimeout(applyTxnFilters, 300); });
+
+function exportCSV() {
+  const rows = [['Date','Merchant','Category','Amount','Source','Description']];
+  txnFiltered.forEach(t => {
+    rows.push([t.date, MERCH[t.merchant], CATS[t.category], t.amount.toFixed(2), SRCS[t.source], '"'+t.desc.replace(/"/g,'""')+'"']);
+  });
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'transactions_export.csv';
+  a.click();
+}
+
+
+// ========== CASH FLOW TAB ==========
+function renderCashFlow() {
+  const { from: cfFrom, to: cfTo } = getGlobalDateRange();
+  const spendAll = filterSpending('all', gSource);
+  const incAll = income.filter(t => {
+    if (t.date < cfFrom || t.date > cfTo) return false;
+    if (gSource !== 'all' && t.source !== parseInt(gSource)) return false;
+    return true;
+  });
+  const trAll = transfers.filter(t => {
+    if (t.date < cfFrom || t.date > cfTo) return false;
+    if (gSource !== 'all' && t.source !== parseInt(gSource)) return false;
+    return true;
+  });
+
+  // Monthly aggregation
+  const months = {};
+  sortedMonths.forEach(m => { months[m] = {spend:0, income:0, transfers:0, debt:0}; });
+  spendAll.forEach(t => {
+    const m = getMonthStr(t.date);
+    if (months[m]) {
+      months[m].spend += t.amount;
+      // Detect debt service by description keywords
+      if (/credit|payment|chase|loan/i.test(t.desc)) months[m].debt += t.amount;
+    }
+  });
+  incAll.forEach(t => { const m = getMonthStr(t.date); if (months[m]) months[m].income += t.amount; });
+  trAll.forEach(t => { const m = getMonthStr(t.date); if (months[m]) months[m].transfers += t.amount; });
+
+  const labels = sortedMonths;
+  const spendData = labels.map(l => months[l]?.spend || 0);
+  const incData = labels.map(l => months[l]?.income || 0);
+  const trData = labels.map(l => months[l]?.transfers || 0);
+
+  // Adjust based on toggles
+  let adjSpend = spendData.map((s,i) => {
+    let v = s;
+    if (!cfShowDebt) v -= (months[labels[i]]?.debt || 0);
+    return v;
+  });
+
+  // KPIs
+  const totalIncome = incAll.reduce((s,t)=>s+t.amount,0);
+  const totalSpend = spendAll.reduce((s,t)=>s+t.amount,0);
+  const totalTransfers = trAll.reduce((s,t)=>s+t.amount,0);
+  const netFlow = totalIncome - totalSpend;
+  const avgMonthlySpend = totalSpend / Math.max(1, sortedMonths.length);
+
+  document.getElementById('cfKpis').innerHTML = `
+    <div class="card">
+      <div class="card-title">Total Income</div>
+      <div class="card-value" style="color:var(--green)">${fmt(totalIncome)}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Total Spending</div>
+      <div class="card-value" style="color:var(--red)">${fmt(totalSpend)}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Net Cash Flow</div>
+      <div class="card-value" style="color:${netFlow>=0?'var(--green)':'var(--red)'}">${netFlow>=0?'+':''}${fmt(netFlow)}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Total Transfers</div>
+      <div class="card-value">${fmt(totalTransfers)}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Avg Monthly Spend</div>
+      <div class="card-value">${fmt(avgMonthlySpend)}</div>
+    </div>
+  `;
+
+  // Income vs Spending chart
+  const datasets = [
+    {
+      label: 'Income',
+      data: incData,
+      backgroundColor: 'rgba(74,222,128,0.6)',
+      borderColor: '#4ade80',
+      borderWidth: 1
+    },
+    {
+      label: 'Spending',
+      data: adjSpend,
+      backgroundColor: 'rgba(248,113,113,0.6)',
+      borderColor: '#f87171',
+      borderWidth: 1
+    }
+  ];
+  if (cfShowTransfers) {
+    datasets.push({
+      label: 'Transfers',
+      data: trData,
+      backgroundColor: 'rgba(96,165,250,0.4)',
+      borderColor: '#60a5fa',
+      borderWidth: 1
+    });
+  }
+
+  destroyChart('cashFlow');
+  charts.cashFlow = new Chart(document.getElementById('chartCashFlow'), {
+    type: 'bar',
+    data: {
+      labels: labels.map(l => {
+        const [y,m] = l.split('-');
+        return new Date(y,m-1).toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+      }),
+      datasets
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } }
+      },
+      scales: {
+        y: { ticks: { callback: v => '$'+v.toLocaleString() }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Net cash flow trend
+  const netData = labels.map((l,i) => (incData[i]||0) - (adjSpend[i]||0));
+  destroyChart('netCF');
+  charts.netCF = new Chart(document.getElementById('chartNetCF'), {
+    type: 'line',
+    data: {
+      labels: labels.map(l => {
+        const [y,m] = l.split('-');
+        return new Date(y,m-1).toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+      }),
+      datasets: [{
+        label: 'Net Cash Flow',
+        data: netData,
+        borderColor: ctx => {
+          const v = ctx.parsed?.y;
+          return v >= 0 ? '#4ade80' : '#f87171';
+        },
+        segment: {
+          borderColor: ctx => {
+            const v = ctx.p1.parsed.y;
+            return v >= 0 ? '#4ade80' : '#f87171';
+          }
+        },
+        backgroundColor: 'rgba(96,165,250,0.05)',
+        fill: true,
+        pointBackgroundColor: netData.map(v => v >= 0 ? '#4ade80' : '#f87171')
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => (ctx.parsed.y>=0?'+':'') + fmt(ctx.parsed.y) } }
+      },
+      scales: {
+        y: { ticks: { callback: v => (v>=0?'+':'-')+'$'+Math.abs(v).toLocaleString() }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Transfer table
+  const sortedTr = [...trAll].sort((a,b) => b.date.localeCompare(a.date));
+  let tbl = '<table><thead><tr><th>Date</th><th style="text-align:right">Amount</th><th>Source</th><th>Description</th></tr></thead><tbody>';
+  sortedTr.slice(0,20).forEach(t => {
+    tbl += `<tr>
+      <td>${t.date}</td>
+      <td style="text-align:right;font-weight:500">${fmtD(t.amount)}</td>
+      <td>${srcBadge(t.source)}</td>
+      <td style="font-size:11px;color:var(--text-muted)">${t.desc}</td>
+    </tr>`;
+  });
+  tbl += '</tbody></table>';
+  document.getElementById('transferTableWrap').innerHTML = tbl;
+}
+
+function toggleCF(el, key) {
+  el.classList.toggle('on');
+  if (key === 'transfers') cfShowTransfers = el.classList.contains('on');
+  if (key === 'debt') cfShowDebt = el.classList.contains('on');
+  renderCashFlow();
+}
+
+// ========== INSIGHTS TAB ==========
+function renderInsights() {
+  renderTripDefault();
+  renderSubs();
+  renderAnomalies();
+}
+
+// Known region/country -> city/keyword mappings for trip suggestions
+const TRIP_ALIASES = {
+  'italy':['firenze','roma','milano','venezia','napoli','italiana','italia','florence','rome','milan','venice','naples','sicily','amalfi','tuscany','toscana'],
+  'france':['paris','lyon','marseille','nice','bordeaux','toulouse','strasbourg','provence','francais'],
+  'germany':['berlin','munich','frankfurt','hamburg','munchen','deutschland'],
+  'spain':['madrid','barcelona','seville','malaga','espana','ibiza','mallorca'],
+  'greece':['athens','santorini','mykonos','crete','elounta','greek'],
+  'mexico':['cancun','cabo','tulum','guadalajara','mexico city','playa del carmen','puerto vallarta'],
+  'uk':['london','manchester','edinburgh','liverpool','oxford','cambridge','england','britain'],
+  'japan':['tokyo','osaka','kyoto','hiroshima','sapporo'],
+  'canada':['toronto','vancouver','montreal','calgary','ottawa'],
+  'caribbean':['bahamas','jamaica','aruba','cayman','barbados','turks'],
+  'hawaii':['honolulu','maui','kauai','waikiki','oahu'],
+  'florida':['miami','orlando','tampa','fort lauderdale','key west','naples','clearwater','destin','jacksonville'],
+  'california':['los angeles','san francisco','san diego','napa','sacramento','santa monica','hollywood'],
+  'new york':['manhattan','brooklyn','queens','nyc','new york'],
+  'vegas':['las vegas','henderson','fremont'],
+  'texas':['austin','houston','dallas','san antonio','fort worth'],
+  'colorado':['denver','boulder','aspen','vail','breckenridge','colorado springs'],
+  'arkansas':['hot springs','little rock','bentonville','eureka springs','corning'],
+  'missouri':['kansas city','branson','springfield','columbia','lake of the ozarks','ozark'],
+};
+
+function buildLocationIndex() {
+  // Scan all transactions and extract likely location words from descriptions
+  const allTxns = filterSpending('all', gSource);
+  const locationCounts = {};
+
+  // Common US states and cities that appear in merchant descriptions
+  const ignoreWords = new Set(['the','and','inc','llc','srl','spa','bar','st','ave','rd','dr','sq','blvd',
+    'payment','paypal','inst','xfer','pos','recurring','debit','credit','purchase','online',
+    'www','com','http','https','shop','store','market','0','1','2','3','4','5','6','7','8','9']);
+
+  allTxns.forEach(t => {
+    const desc = t.desc.toUpperCase();
+    // Extract the last part of the description which often contains the city/location
+    const parts = desc.split(/\s+/);
+    // Look for 2-3 word location-like sequences (capitalized words at end of desc)
+    const lastWords = parts.slice(-4).join(' ');
+    // Also check full merchant name
+    const merchant = MERCH[t.merchant];
+    const combined = merchant + ' ' + lastWords;
+
+    // Don't index local transactions (common local cities)
+    const localCities = ['saint charles','st charles','st. charles','st peters','saint peters',
+      'o fallon','ofallon','brentwood','chesterfield','creve coeur','bridgeton','maryland heig',
+      'webster grove','richmond heig','saint louis','st louis','st. louis','kirkwood',
+      'university ci','fairview','collinsville','swansea','maryville','belleville'];
+    const lower = combined.toLowerCase();
+    if (localCities.some(lc => lower.includes(lc))) return;
+    // Also skip if no interesting location content
+    if (lower.length < 5) return;
+  });
+
+  return locationCounts;
+}
+
+function findTripSuggestions(query) {
+  const allTxns = filterSpending('all', gSource);
+  const queryLower = query.toLowerCase().trim();
+
+  // Step 1: Expand query using aliases
+  let searchTerms = [queryLower];
+  Object.entries(TRIP_ALIASES).forEach(([region, cities]) => {
+    if (queryLower.includes(region) || region.includes(queryLower)) {
+      searchTerms = searchTerms.concat(cities);
+    }
+    // Also check if query matches any city in the alias
+    cities.forEach(city => {
+      if (queryLower.includes(city) || city.includes(queryLower)) {
+        searchTerms = searchTerms.concat(cities);
+        searchTerms.push(region);
+      }
+    });
+  });
+  searchTerms = [...new Set(searchTerms)];
+
+  // Step 2: Search with expanded terms
+  const matches = allTxns.filter(t => {
+    const haystack = (t.desc + ' ' + MERCH[t.merchant]).toLowerCase();
+    return searchTerms.some(kw => haystack.includes(kw));
+  });
+
+  // Step 3: Also find non-local transaction clusters that might be trips
+  // (transactions in unfamiliar locations clustered in time)
+  const localPatterns = ['saint charles','st charles','st peters','o fallon','ofallon',
+    'brentwood','chesterfield','creve coeur','bridgeton','maryland','webster',
+    'richmond','saint louis','st louis','kirkwood','university ci','fairview',
+    'collinsville','swansea','maryville','belleville','crestwood','fenton',
+    'florissant','st. charles','columbia 62','hazelwood','overland'];
+
+  return { matches, searchTerms };
+}
+
+function renderTripDefault() {
+  // Show detected trips as suggestions
+  const allTxns = filterSpending('all', gSource);
+  const localPatterns = ['saint charles','st charles','st peters','o fallon','ofallon',
+    'brentwood','chesterfield','creve coeur','bridgeton','maryland','webster',
+    'richmond','saint louis','st louis','kirkwood','university ci','fairview',
+    'collinsville','swansea','maryville','belleville','crestwood','fenton',
+    'florissant','st. charles','columbia 62','hazelwood','overland','st peter',
+    'town and coun','clayton','maplewood','ballwin','wentzville','lake saint',
+    'amzn','amazon','800-','888-','866-','877-','paypal','venmo','online',
+    'httpswww','http','www.','gosq.com','square','stripe'];
+
+  // Find transactions that are NOT local
+  const nonLocal = allTxns.filter(t => {
+    const h = (t.desc + ' ' + MERCH[t.merchant]).toLowerCase();
+    return !localPatterns.some(lp => h.includes(lp)) && h.length > 10;
+  });
+
+  // Cluster non-local by date
+  const byDate = {};
+  nonLocal.forEach(t => { if (!byDate[t.date]) byDate[t.date] = []; byDate[t.date].push(t); });
+
+  // Find date clusters with 3+ non-local txns on consecutive days
+  const dates = Object.keys(byDate).sort();
+  const clusters = [];
+  let cluster = [dates[0]];
+  for (let i = 1; i < dates.length; i++) {
+    const prev = new Date(cluster[cluster.length-1]);
+    const curr = new Date(dates[i]);
+    const gap = (curr - prev) / 86400000;
+    if (gap <= 2) { cluster.push(dates[i]); }
+    else {
+      if (cluster.length >= 2) {
+        const txnCount = cluster.reduce((s,d) => s + (byDate[d]?.length || 0), 0);
+        if (txnCount >= 4) clusters.push([...cluster]);
+      }
+      cluster = [dates[i]];
+    }
+  }
+  if (cluster.length >= 2) {
+    const txnCount = cluster.reduce((s,d) => s + (byDate[d]?.length || 0), 0);
+    if (txnCount >= 4) clusters.push(cluster);
+  }
+
+  // Build suggestions from clusters — extract common location words
+  const suggestions = clusters.map(c => {
+    const txns = c.flatMap(d => byDate[d] || []);
+    const total = txns.reduce((s,t) => s+t.amount, 0);
+    // Find most common non-generic words in descriptions
+    const wordCounts = {};
+    txns.forEach(t => {
+      const words = (t.desc + ' ' + MERCH[t.merchant]).replace(/[^a-zA-Z\s]/g,'').toLowerCase().split(/\s+/);
+      words.filter(w => w.length > 3 && !['paypal','inst','xfer','the','and','for','with','from'].includes(w)).forEach(w => {
+        wordCounts[w] = (wordCounts[w]||0) + 1;
+      });
+    });
+    const topWords = Object.entries(wordCounts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([w])=>w);
+    const label = topWords.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(', ');
+    const numDays = Math.round((new Date(c[c.length-1]) - new Date(c[0])) / 86400000) + 1;
+    return { dates: c, start: c[0], end: c[c.length-1], txnCount: txns.length, total, label, numDays, topWords };
+  }).filter(s => s.total > 100);
+
+  suggestions.sort((a,b) => new Date(b.start) - new Date(a.start));
+
+  let html = `<div style="color:var(--text-muted);font-size:13px;margin-bottom:12px">
+    Search for a trip or event, or click a detected trip below.
+  </div>`;
+
+  if (suggestions.length) {
+    html += `<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin-bottom:6px;font-weight:500">Detected Trips & Events (${suggestions.length})</div>`;
+    suggestions.slice(0, 12).forEach(s => {
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-elevated);
+        border-radius:var(--radius-xs);margin-bottom:4px;cursor:pointer;transition:background .2s"
+        onmouseover="this.style.background='var(--bg-active)'" onmouseout="this.style.background='var(--bg-elevated)'"
+        onclick="document.getElementById('tripSearchInput').value='${s.topWords[0]}';searchTrip()">
+        <div style="min-width:90px;font-size:11px;color:var(--text-muted)">${s.start.slice(5)}</div>
+        <div style="flex:1;font-size:13px;font-weight:500">${s.label}</div>
+        <div style="font-size:12px;color:var(--text-secondary)">${s.numDays} day${s.numDays>1?'s':''}</div>
+        <div style="font-size:12px;font-weight:500;min-width:70px;text-align:right">${fmtD(s.total)}</div>
+      </div>`;
+    });
+  }
+
+  document.getElementById('tripResults').innerHTML = html;
+}
+
+function searchTrip() {
+  const query = document.getElementById('tripSearchInput').value.trim();
+  if (!query) return;
+
+  const { matches, searchTerms } = findTripSuggestions(query);
+  const allTxns = filterSpending('all', gSource);
+
+  // If expanded search found results, use those
+  let finalMatches = matches;
+
+  if (finalMatches.length === 0) {
+    // Still nothing — show helpful message with what we tried
+    document.getElementById('tripResults').innerHTML = `<div class="insight-card">
+      <p style="color:var(--text-muted)">No transactions found matching "${query}".</p>
+      <p style="color:var(--text-muted);font-size:12px;margin-top:8px">Searched for: ${searchTerms.slice(0,10).map(s=>`<span style="background:var(--bg-elevated);padding:2px 6px;border-radius:4px;margin:2px">${s}</span>`).join(' ')}</p>
+      <p style="color:var(--text-muted);font-size:12px;margin-top:8px">Try searching for a city name, merchant, hotel, or landmark from the trip.</p>
+    </div>`;
+    return;
+  }
+
+  // Step 2: Cluster matches into date ranges (trips)
+  const matchDates = [...new Set(finalMatches.map(t => t.date))].sort();
+  const trips = [];
+  let currentTrip = [matchDates[0]];
+
+  for (let i = 1; i < matchDates.length; i++) {
+    const prev = new Date(currentTrip[currentTrip.length - 1]);
+    const curr = new Date(matchDates[i]);
+    const dayGap = (curr - prev) / (1000 * 60 * 60 * 24);
+    if (dayGap <= 3) { // within 3 days = same trip
+      currentTrip.push(matchDates[i]);
+    } else {
+      trips.push(currentTrip);
+      currentTrip = [matchDates[i]];
+    }
+  }
+  trips.push(currentTrip);
+
+  // Step 3: Render each trip cluster
+  let html = `<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">${finalMatches.length} matching transactions across ${trips.length} trip${trips.length>1?'s':''}</div>`;
+  if (searchTerms.length > 1) {
+    html += `<div style="font-size:11px;color:var(--text-dim);margin-bottom:12px">Searched: ${searchTerms.slice(0,8).map(s=>`<span style="background:var(--bg-elevated);padding:1px 5px;border-radius:3px">${s}</span>`).join(' ')}</div>`;
+  }
+
+  trips.forEach((tripDates, tripIdx) => {
+    const tripStart = tripDates[0];
+    const tripEnd = tripDates[tripDates.length - 1];
+
+    // Add 1-day buffer before and after
+    const bufferBefore = new Date(new Date(tripStart).getTime() - 86400000).toISOString().slice(0,10);
+    const bufferAfter = new Date(new Date(tripEnd).getTime() + 86400000).toISOString().slice(0,10);
+
+    // Get ALL transactions in the full range (buffer to buffer) — not just keyword matches
+    const fullRangeTxns = allTxns.filter(t => t.date >= bufferBefore && t.date <= bufferAfter);
+    const tripCoreTxns = fullRangeTxns.filter(t => t.date >= tripStart && t.date <= tripEnd);
+    const bufferBeforeTxns = fullRangeTxns.filter(t => t.date === bufferBefore);
+    const bufferAfterTxns = fullRangeTxns.filter(t => t.date === bufferAfter);
+
+    const tripTotal = tripCoreTxns.reduce((s,t) => s+t.amount, 0);
+    const bufferBeforeTotal = bufferBeforeTxns.reduce((s,t) => s+t.amount, 0);
+    const bufferAfterTotal = bufferAfterTxns.reduce((s,t) => s+t.amount, 0);
+    const grandTotal = fullRangeTxns.reduce((s,t) => s+t.amount, 0);
+
+    const numDays = Math.round((new Date(tripEnd) - new Date(tripStart)) / 86400000) + 1;
+
+    // Build daily data for the chart
+    const allDays = [];
+    const d = new Date(bufferBefore);
+    const endD = new Date(bufferAfter);
+    while (d <= endD) {
+      const ds = d.toISOString().slice(0,10);
+      allDays.push(ds);
+      d.setDate(d.getDate() + 1);
+    }
+
+    const dailyAmounts = allDays.map(day => fullRangeTxns.filter(t => t.date === day).reduce((s,t) => s+t.amount, 0));
+    const isBuffer = allDays.map(day => day === bufferBefore || day === bufferAfter);
+
+    // Category breakdown for core trip
+    const catBreakdown = {};
+    tripCoreTxns.forEach(t => { catBreakdown[t.category] = (catBreakdown[t.category]||0) + t.amount; });
+    const sortedCats = Object.entries(catBreakdown).sort((a,b) => b[1]-a[1]);
+
+    // Render
+    html += `<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;border-left:3px solid var(--blue)">`;
+
+    // Header
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <div style="font-size:15px;font-weight:600">${query} ${trips.length > 1 ? '#'+(tripIdx+1) : ''}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${tripStart} to ${tripEnd} (${numDays} day${numDays>1?'s':''})</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:20px;font-weight:600">${fmtD(tripTotal)}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${tripCoreTxns.length} transactions | ${fmtD(tripTotal/numDays)}/day</div>
+      </div>
+    </div>`;
+
+    // Horizontal bar timeline
+    const maxDay = Math.max(...dailyAmounts, 1);
+    html += `<div style="margin-bottom:14px">`;
+    allDays.forEach((day, i) => {
+      const amt = dailyAmounts[i];
+      const pctW = Math.max((amt / maxDay) * 100, 0.5);
+      const buf = isBuffer[i];
+      const dayLabel = new Date(day + 'T12:00:00').toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+      const barColor = buf ? 'rgba(255,255,255,0.08)' : 'rgba(96,165,250,0.6)';
+      const textOpacity = buf ? '0.4' : '1';
+      html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;opacity:${textOpacity}" title="${day}: ${fmtD(amt)}${buf ? ' (buffer day)' : ''}">
+        <span style="font-size:10px;color:var(--text-muted);min-width:90px;text-align:right">${dayLabel}</span>
+        <div style="flex:1;height:20px;background:var(--bg-base);border-radius:3px;overflow:hidden;position:relative">
+          <div style="width:${pctW}%;height:100%;background:${barColor};border-radius:3px;transition:width .3s"></div>
+        </div>
+        <span style="font-size:11px;font-weight:500;min-width:65px;text-align:right">${amt > 0 ? fmtD(amt) : '-'}</span>
+        ${buf ? '<span style="font-size:9px;color:var(--text-dim);min-width:40px">buffer</span>' : '<span style="min-width:40px"></span>'}
+      </div>`;
+    });
+    html += `</div>`;
+
+    // Category breakdown
+    html += `<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">`;
+    html += `<div style="flex:1;min-width:200px">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin-bottom:6px;font-weight:500">By Category</div>`;
+    sortedCats.forEach(([ci, amt]) => {
+      const pctOfTrip = tripTotal ? (amt / tripTotal * 100).toFixed(0) : 0;
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:12px;border-bottom:1px solid var(--border-subtle)">
+        <span><span class="cat-dot" style="background:${catColor(parseInt(ci))}"></span>${CATS[ci]}</span>
+        <span><strong>${fmtD(amt)}</strong> <span style="color:var(--text-muted)">${pctOfTrip}%</span></span>
+      </div>`;
+    });
+    html += `</div>`;
+
+    // Buffer totals
+    html += `<div style="min-width:160px">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin-bottom:6px;font-weight:500">Summary</div>
+      <div style="font-size:12px;padding:3px 0;border-bottom:1px solid var(--border-subtle)">Trip core: <strong>${fmtD(tripTotal)}</strong></div>
+      <div style="font-size:12px;padding:3px 0;border-bottom:1px solid var(--border-subtle);opacity:0.5">Buffer before: ${fmtD(bufferBeforeTotal)}</div>
+      <div style="font-size:12px;padding:3px 0;border-bottom:1px solid var(--border-subtle);opacity:0.5">Buffer after: ${fmtD(bufferAfterTotal)}</div>
+      <div style="font-size:12px;padding:3px 0;font-weight:600">Possible total: ${fmtD(grandTotal)}</div>
+    </div>`;
+    html += `</div>`;
+
+    // Transaction list (collapsible)
+    html += `<details style="margin-top:8px"><summary style="font-size:12px;color:var(--text-secondary);cursor:pointer;font-weight:500">View ${fullRangeTxns.length} transactions</summary>
+      <div style="max-height:250px;overflow-y:auto;margin-top:8px"><table style="font-size:11px"><thead><tr>
+        <th>Date</th><th>Merchant</th><th style="text-align:right">Amount</th><th>Category</th><th>Source</th></tr></thead><tbody>`;
+    fullRangeTxns.sort((a,b) => a.date.localeCompare(b.date)).forEach(t => {
+      const buf = t.date === bufferBefore || t.date === bufferAfter;
+      html += `<tr style="${buf ? 'opacity:0.4' : ''}">
+        <td>${t.date}</td><td>${MERCH[t.merchant]}</td>
+        <td style="text-align:right;font-weight:500">${fmtD(t.amount)}</td>
+        <td><span class="cat-dot" style="background:${catColor(t.category)}"></span>${CATS[t.category]}</td>
+        <td>${srcBadge(t.source)}</td></tr>`;
+    });
+    html += `</tbody></table></div></details>`;
+    html += `</div>`;
+  });
+
+  document.getElementById('tripResults').innerHTML = html;
+}
+
+function renderSubs() {
+  // Detect subscriptions: merchants appearing in 3+ consecutive months with similar amounts
+  const allTxns = filterSpending('all', gSource);
+  const byMerch = {};
+  allTxns.forEach(t => {
+    if (!byMerch[t.merchant]) byMerch[t.merchant] = {};
+    const m = getMonthStr(t.date);
+    if (!byMerch[t.merchant][m]) byMerch[t.merchant][m] = [];
+    byMerch[t.merchant][m].push(t.amount);
+  });
+
+  const subs = [];
+  Object.entries(byMerch).forEach(([mi, months]) => {
+    const monthKeys = Object.keys(months).sort();
+    if (monthKeys.length < 3) return;
+
+    // Check for consistent single-transaction months with similar amounts
+    const monthlyAmts = monthKeys.map(m => {
+      const amts = months[m];
+      return amts.length === 1 ? amts[0] : null;
+    }).filter(a => a !== null);
+
+    if (monthlyAmts.length < 3) return;
+
+    const avg = monthlyAmts.reduce((s,v)=>s+v,0) / monthlyAmts.length;
+    const variance = monthlyAmts.reduce((s,v)=>s+Math.pow(v-avg,2),0) / monthlyAmts.length;
+    const cv = Math.sqrt(variance) / avg;
+
+    if (cv < 0.15) { // Consistent amounts
+      subs.push({
+        merchant: MERCH[mi],
+        mi: parseInt(mi),
+        avgAmount: avg,
+        months: monthKeys.length,
+        monthlyTotal: avg
+      });
+    }
+  });
+
+  subs.sort((a,b) => b.avgAmount - a.avgAmount);
+
+  let html = '';
+  const totalSub = subs.reduce((s,sub)=>s+sub.avgAmount,0);
+  if (subs.length > 0) {
+    html += `<div style="margin-bottom:12px;font-size:13px;color:var(--text-secondary)">
+      Estimated monthly subscriptions: <strong style="color:var(--text-primary)">${fmt(totalSub)}/mo</strong> (${subs.length} detected)
+    </div>`;
+  }
+  if (subs.length === 0) {
+    html = '<div class="insight-card"><p>No clear subscription patterns detected.</p></div>';
+  } else {
+    html += '<div class="tbl-wrap"><table><thead><tr><th>Service</th><th style="text-align:right">Amount/mo</th><th style="text-align:right">Months Active</th></tr></thead><tbody>';
+    subs.slice(0,15).forEach(s => {
+      html += `<tr><td style="font-weight:500">${s.merchant}</td><td style="text-align:right">${fmtD(s.avgAmount)}</td><td style="text-align:right">${s.months}</td></tr>`;
+    });
+    html += '</tbody></table></div>';
+  }
+  document.getElementById('insightSubs').innerHTML = html;
+}
+
+function renderAnomalies() {
+  const txns = filterSpending(gMonth, gSource);
+  if (txns.length === 0) {
+    document.getElementById('insightAnomalies').innerHTML = '<div class="insight-card"><p>No transactions to analyze.</p></div>';
+    return;
+  }
+
+  const avg = txns.reduce((s,t)=>s+t.amount,0) / txns.length;
+  const stddev = Math.sqrt(txns.reduce((s,t)=>s+Math.pow(t.amount-avg,2),0) / txns.length);
+  const threshold = avg + 2.5 * stddev;
+
+  const anomalies = txns.filter(t => t.amount > threshold && t.amount > 50).sort((a,b)=>b.amount-a.amount);
+
+  let html = `<div style="margin-bottom:8px;font-size:12px;color:var(--text-muted)">
+    Avg: ${fmtD(avg)} | Std Dev: ${fmtD(stddev)} | Threshold: ${fmtD(threshold)}
+  </div>`;
+
+  if (anomalies.length === 0) {
+    html += '<div class="insight-card"><h4>No Anomalies</h4><p>All transactions are within expected ranges.</p></div>';
+  } else {
+    anomalies.slice(0,8).forEach(t => {
+      const mult = (t.amount / avg).toFixed(1);
+      html += `<div class="insight-card">
+        <h4 style="display:flex;justify-content:space-between"><span>${MERCH[t.merchant]}</span><span style="color:var(--red)">${fmtD(t.amount)}</span></h4>
+        <p>${t.date} | ${CATS[t.category]} | ${mult}x average | ${srcBadge(t.source)}</p>
+      </div>`;
+    });
+  }
+  document.getElementById('insightAnomalies').innerHTML = html;
+}
+
+function renderComparison() {
+  if (gMonth === 'all') {
+    // Compare last 2 months
+    const m1 = sortedMonths[sortedMonths.length - 1];
+    const m2 = sortedMonths[sortedMonths.length - 2];
+    if (!m1 || !m2) { document.getElementById('insightComparison').innerHTML = '<p>Not enough data</p>'; return; }
+    renderCompareMonths(m1, m2);
+  } else {
+    const prev = getPrevMonth(gMonth);
+    renderCompareMonths(gMonth, prev);
+  }
+}
+
+function renderCompareMonths(m1, m2) {
+  const t1 = filterSpending(m1, gSource);
+  const t2 = filterSpending(m2, gSource);
+  const total1 = t1.reduce((s,t)=>s+t.amount,0);
+  const total2 = t2.reduce((s,t)=>s+t.amount,0);
+  const ch = pctChange(total1, total2);
+
+  const cats1 = {}; t1.forEach(t => { cats1[t.category] = (cats1[t.category]||0) + t.amount; });
+  const cats2 = {}; t2.forEach(t => { cats2[t.category] = (cats2[t.category]||0) + t.amount; });
+
+  const allCats = new Set([...Object.keys(cats1), ...Object.keys(cats2)]);
+  const changes = [];
+  allCats.forEach(ci => {
+    const c1 = cats1[ci] || 0;
+    const c2 = cats2[ci] || 0;
+    if (c1 > 0 || c2 > 0) {
+      changes.push({ ci: parseInt(ci), cur: c1, prev: c2, diff: c1 - c2 });
+    }
+  });
+  changes.sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
+
+  const fmtMonth = m => {
+    const [y,mo] = m.split('-');
+    return new Date(y,mo-1).toLocaleDateString('en-US',{month:'short',year:'numeric'});
+  };
+
+  let html = `<div style="margin-bottom:12px;font-size:13px">
+    <strong>${fmtMonth(m1)}</strong> vs <strong>${fmtMonth(m2)}</strong>:
+    ${fmt(total1)} vs ${fmt(total2)} (<span class="${ch.cls}">${ch.str}</span>)
+  </div>`;
+
+  html += '<div class="tbl-wrap"><table><thead><tr><th>Category</th><th style="text-align:right">Current</th><th style="text-align:right">Previous</th><th style="text-align:right">Change</th></tr></thead><tbody>';
+  changes.slice(0,10).forEach(c => {
+    const chg = c.diff > 0 ? '+'+fmtD(c.diff) : '-'+fmtD(Math.abs(c.diff));
+    const cls = c.diff > 0 ? 'color:var(--red)' : 'color:var(--green)';
+    html += `<tr>
+      <td><span class="cat-dot" style="background:${catColor(c.ci)}"></span>${CATS[c.ci]}</td>
+      <td style="text-align:right">${fmtD(c.cur)}</td>
+      <td style="text-align:right">${fmtD(c.prev)}</td>
+      <td style="text-align:right;${cls};font-weight:500">${chg}</td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  document.getElementById('insightComparison').innerHTML = html;
+}
+
+function renderWeeklyPace() {
+  const month = gMonth !== 'all' ? gMonth : sortedMonths[sortedMonths.length - 1];
+  const txns = filterSpending(month, gSource);
+
+  // Group by week of month
+  const [yr, mo] = month.split('-').map(Number);
+  const daysInMonth = new Date(yr, mo, 0).getDate();
+  const weeks = {};
+  for (let w = 1; w <= 5; w++) weeks[w] = 0;
+
+  txns.forEach(t => {
+    const day = parseInt(t.date.substring(8,10));
+    const week = Math.min(5, Math.ceil(day / 7));
+    weeks[week] += t.amount;
+  });
+
+  // Also get prev month for comparison
+  const prev = getPrevMonth(month);
+  const prevTxns = filterSpending(prev, gSource);
+  const prevWeeks = {};
+  for (let w = 1; w <= 5; w++) prevWeeks[w] = 0;
+  prevTxns.forEach(t => {
+    const day = parseInt(t.date.substring(8,10));
+    const week = Math.min(5, Math.ceil(day / 7));
+    prevWeeks[week] += t.amount;
+  });
+
+  const labels = ['Week 1','Week 2','Week 3','Week 4','Week 5'];
+  const data = [1,2,3,4,5].map(w => weeks[w]);
+  const prevData = [1,2,3,4,5].map(w => prevWeeks[w]);
+
+  // Cumulative
+  const cumData = data.reduce((acc,v) => { acc.push((acc.length?acc[acc.length-1]:0)+v); return acc; }, []);
+  const cumPrev = prevData.reduce((acc,v) => { acc.push((acc.length?acc[acc.length-1]:0)+v); return acc; }, []);
+
+  destroyChart('weeklyPace');
+  charts.weeklyPace = new Chart(document.getElementById('chartWeeklyPace'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'This Month (cumulative)',
+          data: cumData,
+          borderColor: '#60a5fa',
+          backgroundColor: 'rgba(96,165,250,0.1)',
+          fill: true,
+          pointBackgroundColor: '#60a5fa'
+        },
+        {
+          label: 'Last Month (cumulative)',
+          data: cumPrev,
+          borderColor: '#666',
+          borderDash: [5,5],
+          backgroundColor: 'transparent',
+          pointBackgroundColor: '#666'
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } }
+      },
+      scales: {
+        y: { ticks: { callback: v => '$'+v.toLocaleString() }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ========== INITIALIZATION ==========
+document.addEventListener('DOMContentLoaded', () => {
+  // Set date range defaults
+  if (spending.length) {
+    const dates = spending.map(t=>t.date).sort();
+    document.getElementById('txnDateFrom').min = dates[0];
+    document.getElementById('txnDateTo').max = dates[dates.length-1];
+  }
+
+  refreshAll();
+});
+
+</script>
+</body>
+</html>
